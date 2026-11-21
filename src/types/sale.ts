@@ -1,6 +1,27 @@
 import type { ShippingMethod } from './shipping';
 
 export type PaymentMethod = 'MERCADO_PAGO' | 'TRANSFERENCIA' | 'EFECTIVO';
+export type TaxIdType = 'DNI' | 'CUIT' | 'CUIL';
+
+export interface SaleStatusUpdateRequest {
+  newStatus: SaleStatus;
+  changeReason?: string;
+}
+
+export interface PaymentStatusUpdateRequest {
+  newPaymentStatus: PaymentStatus;
+  paymentNotes?: string;
+}
+
+export interface SaleInternalNoteRequest {
+  internalNotes: string;
+}
+
+export interface SaleFiscalDataUpdateRequest {
+  customerName: string;
+  customerTaxIdType: TaxIdType | null;
+  customerTaxIdNumber: string | null;
+}
 
 export interface CheckoutItemRequest {
   variantId: number;
@@ -64,7 +85,7 @@ export interface SaleResponse {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  customerTaxIdType: string | null;
+  customerTaxIdType: TaxIdType | null;
   customerTaxIdNumber: string | null;
   customerNotes: string | null;
   shippingMethod: ShippingMethod;
@@ -82,6 +103,7 @@ export interface SaleResponse {
   saleStatus: SaleStatus;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
+  fiscalRejection: boolean;
   internalNotes: string | null;
   mpPreferenceId: string | null;
   mpInitPoint: string | null;
@@ -96,7 +118,7 @@ export interface SaleSummaryResponse {
   trackingToken: string;
   customerName: string;
   customerEmail: string;
-  customerTaxIdType: string | null;
+  customerTaxIdType: TaxIdType | null;
   customerTaxIdNumber: string | null;
   shippingMethod: ShippingMethod;
   shippingProvince: string | null;
@@ -107,6 +129,7 @@ export interface SaleSummaryResponse {
   saleStatus: SaleStatus;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
+  fiscalRejection: boolean;
   saleDeliveredAt: string | null;
   createdAt: string;
 }

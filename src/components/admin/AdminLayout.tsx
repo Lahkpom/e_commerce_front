@@ -8,9 +8,10 @@ const navigation = [
   { label: 'Productos', to: '/admin/productos', end: false },
   { label: 'Variantes', to: '/admin/variantes', end: false },
   { label: 'Colores', to: '/admin/colores', end: false },
+  { label: 'Ventas', to: '/admin/ventas', end: false },
 ];
 
-const upcomingSections = ['Ventas', 'Devoluciones', 'Usuarios / Envíos'];
+const upcomingSections = ['Devoluciones', 'Usuarios / Envíos'];
 
 const AdminLayout = () => {
   const { role, signOut } = useAuth();
