@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import useAuth from '../../hooks/useAuth';
 import {
   createColor,
   getAdminColors,
@@ -11,6 +12,7 @@ const emptyForm: ColorRequest = { name: '', desc: '', code: '#000000' };
 const HEX_COLOR_PATTERN = /^#[\da-f]{6}$/i;
 
 const AdminColors = () => {
+  const { role } = useAuth();
   const [colors, setColors] = useState<ColorResponse[]>([]);
   const [form, setForm] = useState<ColorRequest>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -177,9 +179,11 @@ const AdminColors = () => {
                       <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => void handleStatus(color)}>
                         {color.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'}
                       </button>
-                      <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void handleStatus(color, true)}>
-                        Eliminar
-                      </button>
+                      {role === 'ADMIN' && (
+                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void handleStatus(color, true)}>
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

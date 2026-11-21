@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import useAuth from '../../hooks/useAuth';
 import {
   createVariant,
   getActiveProductOptions,
@@ -90,6 +91,7 @@ const toUpdatePayload = (form: VariantFormValues): VariantUpdateRequest | null =
 };
 
 const AdminVariants = () => {
+  const { role } = useAuth();
   const [pageData, setPageData] = useState(emptyPage);
   const [page, setPage] = useState(0);
   const [filters, setFilters] = useState<VariantFilters>(emptyFilters);
@@ -355,7 +357,9 @@ const AdminVariants = () => {
                       <div className="d-flex flex-wrap gap-1">
                         <button type="button" className="btn btn-sm btn-outline-primary" disabled={saving} onClick={() => void handleSave(variant)}>Guardar</button>
                         <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => void handleStatus(variant)}>{variant.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'}</button>
-                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void handleStatus(variant, true)}>Eliminar</button>
+                        {role === 'ADMIN' && (
+                          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void handleStatus(variant, true)}>Eliminar</button>
+                        )}
                       </div>
                     </td>
                   </tr>

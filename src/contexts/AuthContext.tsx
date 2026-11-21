@@ -4,6 +4,7 @@ import type {
   AuthResponse,
   AuthState,
   ChangePasswordRequest,
+  ExpiredPasswordResetRequest,
   LoginCredentials,
   RegisterRequest,
   UserResponse,
@@ -18,7 +19,7 @@ import {
   setStoredToken,
 } from '../services/api';
 
-type AuthResult<T> = { data: T | null; error: Error | null };
+type AuthResult<T> = { data: T | null; error: Error | null; passwordExpired?: boolean };
 type ProfileUpdates = Partial<Pick<UserResponse, 'userName' | 'userPhone' | 'taxIdType' | 'taxIdNumber'>>;
 
 interface AuthContextValue extends AuthState {
@@ -34,6 +35,9 @@ interface AuthContextValue extends AuthState {
   register: (request: RegisterRequest) => Promise<AuthResult<UserResponse>>;
   updateProfile: (updates: ProfileUpdates) => Promise<AuthResult<UserResponse>>;
   changePassword: (payload: ChangePasswordRequest) => Promise<AuthResult<UserResponse>>;
+  changeExpiredPassword: (
+    payload: ExpiredPasswordResetRequest,
+  ) => Promise<AuthResult<AuthResponse>>;
 }
 
 const initialAuthState: AuthState = {
@@ -47,6 +51,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 const getError = (error: unknown, fallback: string): Error =>
   error instanceof Error ? error : new Error(fallback);
+
+const isExpiredPasswordError = (error: Error): boolean =>
+  /expiró|restablezca su clave/i.test(error.message);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>(initialAuthState);
@@ -105,11 +112,42 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       return { data, error: null };
     } catch (error) {
-      return { data: null, error: getError(error, 'Error de autenticación') };
+      const loginError = getError(error, 'Error de autenticación');
+      return {
+        data: null,
+        error: loginError,
+        passwordExpired: isExpiredPasswordError(loginError),
+      };
     }
   };
 
   const signIn = (email: string, password: string) => login({ email, password });
+
+  const changeExpiredPassword = async (
+    payload: ExpiredPasswordResetRequest,
+  ): Promise<AuthResult<AuthResponse>> => {
+    try {
+      const data = await apiRequest<AuthResponse>('/auth/change-expired-password', {
+        method: 'POST',
+        body: payload,
+      });
+
+      setStoredToken(data.accessToken);
+      setStoredRefreshToken(data.refreshToken);
+      setAuthState({
+        user: data.user,
+        token: data.accessToken,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      setProfile(data.user);
+      setRole(data.user.userRole);
+
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error: getError(error, 'No se pudo renovar la contraseña') };
+    }
+  };
 
   const logout = async (): Promise<void> => {
     const refreshToken = getStoredRefreshToken();
@@ -208,6 +246,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     register,
     updateProfile,
     changePassword,
+    changeExpiredPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

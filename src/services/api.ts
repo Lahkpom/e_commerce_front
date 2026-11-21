@@ -61,7 +61,9 @@ const getRequestPath = (config: Pick<InternalAxiosRequestConfig, 'url' | 'baseUR
 
 apiClient.interceptors.request.use((config) => {
   const requestPath = getRequestPath(config);
-  const isAuthExchange = requestPath.endsWith('/auth/login') || requestPath.endsWith('/auth/refresh');
+  const isAuthExchange = requestPath.endsWith('/auth/login')
+    || requestPath.endsWith('/auth/refresh')
+    || requestPath.endsWith('/auth/change-expired-password');
   const token = isAuthExchange ? null : getStoredToken();
 
   if (token) {
@@ -78,7 +80,8 @@ apiClient.interceptors.response.use(undefined, (error: unknown) => {
 
   const requestConfig = error.config as RetryableRequestConfig;
   const requestPath = getRequestPath(requestConfig);
-  const isLoginRequest = requestPath.endsWith('/auth/login');
+  const isLoginRequest = requestPath.endsWith('/auth/login')
+    || requestPath.endsWith('/auth/change-expired-password');
   const isRefreshRequest = requestPath.endsWith('/auth/refresh');
 
   if (isLoginRequest) return Promise.reject(error);

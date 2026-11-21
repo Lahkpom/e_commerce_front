@@ -5,6 +5,7 @@ const sections = [
   { title: 'Gestión de Variantes', description: 'Editá talles, colores, SKU, precios y stock.', to: '/admin/variantes' },
   { title: 'Gestión de Colores', description: 'Mantené los colores disponibles para las variantes.', to: '/admin/colores' },
   { title: 'Gestión de Ventas', description: 'Gestioná ventas, auditorías, pagos y comprobantes fiscales.', to: '/admin/ventas' },
+  { title: 'Gestión de Usuarios', description: 'Administrá clientes, mayoristas y cuentas del equipo interno.', to: '/admin/usuarios' },
 ];
 
 const AdminHome = () => (

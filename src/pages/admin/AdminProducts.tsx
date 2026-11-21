@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import useAuth from '../../hooks/useAuth';
 import { TARGET_GENDERS, isTargetGender, type TargetGender } from '../../constants/products';
 import {
   createAdminProduct,
@@ -13,6 +14,7 @@ const emptyForm: AdminProductRequest = { targetGender: 'UNISEX', name: '', short
 const emptyPage: PageResponse<AdminProductResponse> = { content: [], totalPages: 0 };
 
 const AdminProducts = () => {
+  const { role } = useAuth();
   const [pageData, setPageData] = useState(emptyPage);
   const [page, setPage] = useState(0);
   const [form, setForm] = useState<AdminProductRequest>(emptyForm);
@@ -193,9 +195,11 @@ const AdminProducts = () => {
                       <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => void handleStatus(product)}>
                         {product.status === 'ACTIVE' ? 'Desactivar' : 'Activar'}
                       </button>
-                      <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void handleStatus(product, true)}>
-                        Eliminar
-                      </button>
+                      {role === 'ADMIN' && (
+                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void handleStatus(product, true)}>
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
