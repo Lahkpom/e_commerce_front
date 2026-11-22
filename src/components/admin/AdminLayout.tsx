@@ -4,15 +4,18 @@ import useAuth from '../../hooks/useAuth';
 import './AdminLayout.scss';
 
 const navigation = [
-  { label: 'Resumen', to: '/admin', end: true },
-  { label: 'Productos', to: '/admin/productos', end: false },
-  { label: 'Variantes', to: '/admin/variantes', end: false },
-  { label: 'Colores', to: '/admin/colores', end: false },
-  { label: 'Ventas', to: '/admin/ventas', end: false },
-  { label: 'Usuarios', to: '/admin/usuarios', end: false },
+  { label: 'Resumen', to: '/admin', end: true, icon: 'bi-speedometer2' },
+  { label: 'Productos', to: '/admin/productos', end: false, icon: 'bi-box-seam' },
+  { label: 'Variantes', to: '/admin/variantes', end: false, icon: 'bi-tags' },
+  { label: 'Colores', to: '/admin/colores', end: false, icon: 'bi-palette' },
+  { label: 'Ventas', to: '/admin/ventas', end: false, icon: 'bi-receipt' },
+  { label: 'Usuarios', to: '/admin/usuarios', end: false, icon: 'bi-people' },
 ];
 
-const upcomingSections = ['Devoluciones', 'Envíos'];
+const upcomingSections = [
+  { label: 'Devoluciones', icon: 'bi-arrow-return-left' },
+  { label: 'Envíos', icon: 'bi-truck' },
+];
 
 const AdminLayout = () => {
   const { role, signOut } = useAuth();
@@ -44,32 +47,39 @@ const AdminLayout = () => {
         <div>
           <div className="admin-layout__brand">
             <span className="admin-layout__brand-mark">CF</span>
-            <div>
+            <div className="admin-layout__brand-copy">
               <strong>Administración</strong>
               <span className="admin-layout__role">{role ?? 'ADMIN'}</span>
             </div>
           </div>
           <nav aria-label="Navegación de administración">
             <ul className="admin-layout__nav">
-              {navigation.map(({ label, to, end }) => (
+              {navigation.map(({ label, to, end, icon }) => (
                 <li key={to}>
                   <NavLink
                     to={to}
                     end={end}
+                    title={label}
                     onClick={closeSidebar}
                     className={({ isActive }) => `admin-layout__link${isActive ? ' is-active' : ''}`}
                   >
-                    {label}
+                    <span className="admin-layout__icon" aria-hidden="true">
+                      <i className={`bi ${icon}`} />
+                    </span>
+                    <span className="admin-layout__label">{label}</span>
                   </NavLink>
                 </li>
               ))}
             </ul>
             <div className="admin-layout__upcoming-title">Más herramientas</div>
             <ul className="admin-layout__nav">
-              {upcomingSections.map((section) => (
-                <li key={section}>
-                  <button type="button" className="admin-layout__link is-disabled" disabled>
-                    <span>{section}</span>
+              {upcomingSections.map(({ label, icon }) => (
+                <li key={label}>
+                  <button type="button" className="admin-layout__link is-disabled" title={label} disabled>
+                    <span className="admin-layout__icon" aria-hidden="true">
+                      <i className={`bi ${icon}`} />
+                    </span>
+                    <span className="admin-layout__label">{label}</span>
                     <span className="admin-layout__coming-soon">Próximamente</span>
                   </button>
                 </li>
@@ -78,11 +88,27 @@ const AdminLayout = () => {
           </nav>
         </div>
         <div className="admin-layout__actions">
-          <button type="button" className="admin-layout__action" onClick={() => navigate('/')}>
-            Ir a la tienda
+          <button
+            type="button"
+            className="admin-layout__action"
+            title="Ir a la tienda"
+            onClick={() => navigate('/')}
+          >
+            <span className="admin-layout__icon" aria-hidden="true">
+              <i className="bi bi-shop" />
+            </span>
+            <span className="admin-layout__label">Ir a la tienda</span>
           </button>
-          <button type="button" className="admin-layout__action is-logout" onClick={() => void signOut()}>
-            Cerrar sesión
+          <button
+            type="button"
+            className="admin-layout__action is-logout"
+            title="Cerrar sesión"
+            onClick={() => void signOut()}
+          >
+            <span className="admin-layout__icon" aria-hidden="true">
+              <i className="bi bi-box-arrow-right" />
+            </span>
+            <span className="admin-layout__label">Cerrar sesión</span>
           </button>
         </div>
       </aside>

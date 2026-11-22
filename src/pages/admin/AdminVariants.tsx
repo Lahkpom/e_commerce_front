@@ -366,7 +366,19 @@ const AdminVariants = () => {
                       </select>
                     </td>
                     <td><input aria-label={`SKU de ${variant.sku}`} className="form-control form-control-sm text-uppercase" value={draft.sku} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, sku: event.target.value.toUpperCase() } }))} /></td>
-                    <td><input aria-label={`Descripción de ${variant.sku}`} className="form-control form-control-sm" value={draft.desc} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, desc: event.target.value } }))} /></td>
+                    <td>
+                      <textarea
+                        aria-label={`Descripción de ${variant.sku}`}
+                        className="form-control form-control-sm"
+                        rows={2}
+                        maxLength={255}
+                        value={draft.desc}
+                        onChange={(event) => setDrafts((current) => ({
+                          ...current,
+                          [variant.id]: { ...draft, desc: event.target.value },
+                        }))}
+                      />
+                    </td>
                     <td><input aria-label={`Precio de ${variant.sku}`} className="form-control form-control-sm" type="number" min="0" step="0.01" value={draft.price} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, price: event.target.value } }))} /></td>
                     <td><input aria-label={`Stock de ${variant.sku}`} className="form-control form-control-sm" type="number" min="0" step="1" value={draft.stock} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, stock: event.target.value } }))} /></td>
                     <td><span className={`badge ${variant.rowStatus === 'ACTIVE' ? 'text-bg-success' : 'text-bg-secondary'}`}>{variant.rowStatus}</span></td>
