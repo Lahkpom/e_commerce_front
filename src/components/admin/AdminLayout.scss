@@ -1,7 +1,9 @@
+@use '../../styles/global/variables' as *;
+
 .admin-layout {
   min-height: 100vh;
-  background: #f5f6f8;
-  color: #242a31;
+  background: $secondary-bg-color;
+  color: $charcoal-grey-color;
 }
 
 .admin-layout__sidebar {
@@ -14,8 +16,8 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 1.5rem 1rem;
-  background: #202b3c;
-  color: #fff;
+  background: $charcoal-grey-color;
+  color: $white-color;
 }
 
 .admin-layout__brand {
@@ -38,8 +40,8 @@
   height: 2.75rem;
   place-items: center;
   border-radius: 0.75rem;
-  background: #c58b54;
-  color: #fff;
+  background: $bright-terracotta-color;
+  color: $white-color;
   font-weight: 700;
 }
 
@@ -50,7 +52,7 @@
 
 .admin-layout__role {
   margin-top: 0.2rem;
-  color: #b6c0cd;
+  color: $antique-white-color;
   font-size: 0.75rem;
 }
 
@@ -72,7 +74,7 @@
   border-radius: 0.5rem;
   padding: 0.7rem 0.8rem;
   background: transparent;
-  color: #e6ebf1;
+  color: $antique-white-color;
   text-align: left;
   text-decoration: none;
 }
@@ -92,20 +94,21 @@
 }
 
 .admin-layout__link:hover,
-.admin-layout__link.is-active {
-  background: #34445a;
-  color: #fff;
+.admin-layout__link.is-active,
+.admin-layout__link[aria-current='page'] {
+  background: $antique-white-color;
+  color: $charcoal-grey-color;
 }
 
 .admin-layout__link.is-disabled {
-  color: #9da8b6;
+  color: rgba($antique-white-color, 0.55);
   cursor: not-allowed;
 }
 
 .admin-layout__upcoming-title {
   margin: 1.7rem 0 0.6rem 0.8rem;
   overflow: hidden;
-  color: #aeb8c5;
+  color: $antique-white-color;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -121,22 +124,251 @@
 .admin-layout__actions {
   display: grid;
   gap: 0.35rem;
-  border-top: 1px solid #3b4859;
+  border-top: 1px solid rgba($antique-white-color, 0.25);
   padding-top: 1rem;
 }
 
 .admin-layout__action:hover {
-  background: #34445a;
+  background: $antique-white-color;
+  color: $charcoal-grey-color;
 }
 
 .admin-layout__action.is-logout {
-  color: #ffc2bf;
+  color: $bright-terracotta-color;
 }
 
 .admin-layout__main {
   min-height: 100vh;
   margin-left: 270px;
   padding: 2rem;
+  background: $secondary-bg-color;
+  color: $charcoal-grey-color;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.admin-layout__main h1,
+.admin-layout__main h2 {
+  color: $red-color;
+}
+
+.admin-layout__main h3,
+.admin-layout__main h4,
+.admin-layout__main h5,
+.admin-layout__main h6 {
+  color: $charcoal-grey-color;
+}
+
+.admin-layout__main .card {
+  border: 1px solid $antique-white-color;
+  border-radius: 12px;
+  background-color: $white-color;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.admin-layout .table {
+  --bs-table-color: #{$charcoal-grey-color};
+  --bs-table-striped-color: #{$charcoal-grey-color};
+  --bs-table-striped-bg: #{rgba($cream-white-color, 0.45)};
+  --bs-table-hover-color: #{$charcoal-grey-color};
+  --bs-table-hover-bg: #{rgba($antique-white-color, 0.45)};
+  --bs-table-border-color: #{$antique-white-color};
+  color: $charcoal-grey-color;
+}
+
+.admin-layout .table > thead > tr > th {
+  background-color: $antique-white-color;
+  color: $charcoal-grey-color;
+}
+
+.admin-layout .nav-tabs {
+  border-bottom-color: $antique-white-color;
+}
+
+.admin-layout .nav-tabs .nav-link {
+  color: $charcoal-grey-color;
+}
+
+.admin-layout .nav-tabs .nav-link:hover,
+.admin-layout .nav-tabs .nav-link:focus {
+  border-color: $antique-white-color $antique-white-color $bright-terracotta-color;
+  color: $red-color;
+}
+
+.admin-layout .nav-tabs .nav-link.active,
+.admin-layout .nav-tabs .nav-link[aria-selected='true'] {
+  border-color: $antique-white-color $antique-white-color $bright-terracotta-color;
+  color: $red-color;
+}
+
+.admin-layout .btn {
+  border-radius: 30px;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.admin-layout .btn-sm {
+  border-radius: 8px;
+}
+
+.admin-layout .btn-primary {
+  border-color: $bright-terracotta-color;
+  background-color: $bright-terracotta-color;
+  color: $white-color;
+}
+
+.admin-layout .btn-primary:hover:not(:disabled),
+.admin-layout .btn-primary:focus-visible {
+  border-color: $bright-terracotta-color;
+  background-color: $cream-white-color;
+  color: $bright-terracotta-color;
+}
+
+.admin-layout .btn-outline-primary {
+  border-color: $bright-terracotta-color;
+  color: $bright-terracotta-color;
+}
+
+.admin-layout .btn-outline-primary:hover:not(:disabled),
+.admin-layout .btn-outline-primary:focus-visible {
+  border-color: $bright-terracotta-color;
+  background-color: $bright-terracotta-color;
+  color: $white-color;
+}
+
+.admin-layout .btn-outline-secondary {
+  border-color: $steel-blue-color;
+  color: $steel-blue-color;
+}
+
+.admin-layout .btn-outline-secondary:hover:not(:disabled),
+.admin-layout .btn-outline-secondary:focus-visible {
+  border-color: $steel-blue-color;
+  background-color: $cream-white-color;
+  color: $charcoal-grey-color;
+}
+
+.admin-layout .btn-outline-danger {
+  border-color: $red-color;
+  color: $red-color;
+}
+
+.admin-layout .btn-outline-danger:hover:not(:disabled),
+.admin-layout .btn-outline-danger:focus-visible {
+  border-color: $red-color;
+  background-color: $red-color;
+  color: $white-color;
+}
+
+.admin-layout .form-control:focus,
+.admin-layout .form-select:focus {
+  border-color: $bright-terracotta-color;
+  box-shadow: 0 0 0 0.25rem rgba(237, 155, 64, 0.25);
+}
+
+.admin-layout .modal-content {
+  overflow: hidden;
+  border: 1px solid $antique-white-color;
+  border-radius: 12px;
+  background-color: $white-color;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.admin-layout .modal-header,
+.admin-layout .my-orders__modal-header {
+  border-bottom: 1px solid $antique-white-color;
+  background-color: $antique-white-color;
+}
+
+.admin-layout .modal-title,
+.admin-layout .my-orders__modal-title {
+  color: $red-color;
+}
+
+.admin-layout .modal-body,
+.admin-layout .modal-footer,
+.admin-layout .my-orders__modal-body {
+  background-color: $cream-white-color;
+}
+
+.admin-layout .my-orders__modal-backdrop {
+  position: fixed;
+  z-index: 1050;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.admin-layout .my-orders__modal {
+  display: flex;
+  width: min(100%, 42rem);
+  max-height: calc(100vh - 2rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid $antique-white-color;
+  border-radius: 12px;
+  background: $white-color;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.admin-layout .my-orders__modal--wide {
+  width: min(100%, 64rem);
+}
+
+.admin-layout .my-orders__modal-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.admin-layout .my-orders__eyebrow {
+  color: $charcoal-grey-color;
+  font-size: 0.8rem;
+}
+
+.admin-layout .my-orders__modal-body {
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+
+.admin-layout .my-orders__detail-section {
+  margin-bottom: 1rem;
+  border: 1px solid $antique-white-color;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: $cream-white-color;
+}
+
+.admin-layout .my-orders__section-title {
+  margin-bottom: 1rem;
+  border-bottom: 2px solid $bright-terracotta-color;
+  padding-bottom: 0.5rem;
+  color: $red-color;
+  font-size: 1.05rem;
+}
+
+.admin-layout .my-orders__icon-button {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 2.25rem;
+  place-items: center;
+  border: 1px solid $bright-terracotta-color;
+  border-radius: 50%;
+  background: transparent;
+  color: $red-color;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.admin-layout .my-orders__icon-button:hover {
+  background: $bright-terracotta-color;
+  color: $white-color;
 }
 
 .admin-layout__menu-toggle,
@@ -239,8 +471,8 @@
     height: 2.75rem;
     border: 0;
     border-radius: 0.5rem;
-    background: #202b3c;
-    color: #fff;
+    background: $charcoal-grey-color;
+    color: $white-color;
     font-size: 1.25rem;
   }
 

@@ -1,5 +1,12 @@
+@use '../../styles/global/variables' as *;
+
 .my-orders {
-  color: #313638;
+  color: $charcoal-grey-color;
+
+  h2,
+  h3 {
+    color: $red-color;
+  }
 
   &__header,
   &__card-top,
@@ -18,7 +25,7 @@
   }
 
   &__eyebrow {
-    color: #6c757d;
+    color: $light-grey-color;
     font-size: 0.875rem;
   }
 
@@ -36,11 +43,17 @@
   &__select {
     min-height: 2.7rem;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #b9bec2;
-    border-radius: 0.4rem;
-    color: #313638;
-    background: #fff;
+    border: 1px solid $antique-white-color;
+    border-radius: 8px;
+    color: $charcoal-grey-color;
+    background: $white-color;
     font: inherit;
+
+    &:focus {
+      border-color: $bright-terracotta-color;
+      outline: 0;
+      box-shadow: 0 0 0 0.25rem rgba(237, 155, 64, 0.25);
+    }
   }
 
   &__list {
@@ -50,20 +63,21 @@
 
   &__card {
     padding: 1.25rem;
-    border: 1px solid #e6e1d8;
-    border-radius: 0.75rem;
-    background: #fff;
-    box-shadow: 0 0.25rem 1rem rgb(49 54 56 / 5%);
+    border: 1px solid $antique-white-color;
+    border-radius: 12px;
+    background: $white-color;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   }
 
   &__order-code {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 700;
+    color: $red-color;
   }
 
   &__muted {
-    color: #6c757d;
+    color: $light-grey-color;
   }
 
   &__badges {
@@ -80,26 +94,26 @@
     font-weight: 700;
 
     &--sale {
-      color: #315a82;
-      background: #e7f0f8;
+      color: $steel-blue-color;
+      background: rgba($steel-blue-color, 0.12);
     }
 
     &--payment {
-      color: #5e4d7b;
-      background: #f0ebf7;
+      color: $charcoal-grey-color;
+      background: $cream-white-color;
     }
 
     &--entregado,
     &--aprobado {
-      color: #24633d;
-      background: #e6f4ea;
+      color: $charcoal-grey-color;
+      background: $antique-white-color;
     }
 
     &--cancelado,
     &--rechazado,
     &--reembolsado {
-      color: #842d2d;
-      background: #f9e7e7;
+      color: $red-color;
+      background: rgba($red-color, 0.1);
     }
   }
 
@@ -108,6 +122,11 @@
     flex-wrap: wrap;
     gap: 0.5rem 1.5rem;
     margin: 1rem 0;
+
+    > span:last-child {
+      color: $bright-terracotta-color;
+      font-weight: 700;
+    }
   }
 
   &__card-actions {
@@ -123,7 +142,7 @@
     min-height: 2.65rem;
     padding: 0.55rem 1rem;
     border: 1px solid transparent;
-    border-radius: 0.45rem;
+    border-radius: 30px;
     font: inherit;
     font-weight: 700;
     text-align: center;
@@ -136,31 +155,36 @@
     }
 
     &--primary {
-      color: #fff;
-      background: #bc0405;
+      border-color: $bright-terracotta-color;
+      color: $white-color;
+      background: $bright-terracotta-color;
 
       &:hover:not(:disabled) {
-        background: #970405;
+        color: $bright-terracotta-color;
+        border-color: $bright-terracotta-color;
+        background: $cream-white-color;
       }
     }
 
     &--secondary {
-      color: #313638;
-      border-color: #c9cdd0;
-      background: #fff;
+      color: $steel-blue-color;
+      border-color: $steel-blue-color;
+      background: $white-color;
 
       &:hover:not(:disabled) {
-        background: #f4f5f6;
+        color: $charcoal-grey-color;
+        background: $cream-white-color;
       }
     }
 
     &--danger {
-      color: #842d2d;
-      border-color: #e0a4a4;
-      background: #fff;
+      color: $red-color;
+      border-color: $red-color;
+      background: $white-color;
 
       &:hover:not(:disabled) {
-        background: #f9e7e7;
+        color: $white-color;
+        background: $red-color;
       }
     }
   }
@@ -174,9 +198,9 @@
   }
 
   &__alert--error {
-    color: #842d2d;
-    border: 1px solid #e7b6b6;
-    background: #fff1f1;
+    color: $red-color;
+    border: 1px solid rgba($red-color, 0.3);
+    background: rgba($red-color, 0.06);
   }
 
   &__alert--success {
@@ -185,9 +209,9 @@
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 1rem;
-    color: #24633d;
-    border: 1px solid #afd5b9;
-    background: #eaf6ed;
+    color: $charcoal-grey-color;
+    border: 1px solid $antique-white-color;
+    background: $cream-white-color;
   }
 
   &__dismiss {
@@ -201,8 +225,8 @@
 
   &__empty {
     margin-top: 1rem;
-    color: #5c6266;
-    background: #f6f5f2;
+    color: $charcoal-grey-color;
+    background: $cream-white-color;
   }
 
   &__pagination {
@@ -222,16 +246,17 @@
     justify-content: center;
     overflow-y: auto;
     padding: 1rem;
-    background: rgb(20 24 26 / 60%);
+    background: rgba($charcoal-grey-color, 0.65);
   }
 
   &__modal {
     width: min(100%, 38rem);
     max-height: min(92vh, 58rem);
     overflow: hidden;
-    border-radius: 0.85rem;
-    background: #fff;
-    box-shadow: 0 1rem 3rem rgb(0 0 0 / 25%);
+    border: 1px solid $antique-white-color;
+    border-radius: 12px;
+    background: $white-color;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
 
     &--wide {
       width: min(100%, 52rem);
@@ -245,19 +270,22 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid #e6e1d8;
+    border-bottom: 1px solid $antique-white-color;
+    background: $antique-white-color;
   }
 
   &__modal-footer {
     justify-content: flex-end;
-    border-top: 1px solid #e6e1d8;
+    border-top: 1px solid $antique-white-color;
     border-bottom: 0;
+    background: $cream-white-color;
   }
 
   &__modal-title {
     margin: 0;
     font-size: 1.35rem;
     font-weight: 700;
+    color: $red-color;
   }
 
   &__icon-button {
@@ -265,10 +293,10 @@
     width: 2.5rem;
     height: 2.5rem;
     place-items: center;
-    border: 0;
     border-radius: 50%;
-    color: #313638;
-    background: #f2f1ee;
+    border: 1px solid $bright-terracotta-color;
+    color: $red-color;
+    background: $cream-white-color;
     font-size: 1.5rem;
     line-height: 1;
     cursor: pointer;
@@ -278,22 +306,25 @@
     max-height: calc(min(92vh, 58rem) - 8rem);
     overflow-y: auto;
     padding: 1.25rem;
+    background: $cream-white-color;
   }
 
   &__detail-heading {
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e6e1d8;
+    border-bottom: 1px solid $antique-white-color;
   }
 
   &__detail-section {
     padding: 1.15rem 0;
-    border-bottom: 1px solid #e6e1d8;
+    border-bottom: 1px solid $antique-white-color;
+    background: rgba($white-color, 0.65);
   }
 
   &__section-title {
     margin: 0 0 0.85rem;
     font-size: 1rem;
     font-weight: 700;
+    color: $red-color;
   }
 
   &__items {
@@ -317,8 +348,8 @@
     &--empty {
       display: grid;
       place-items: center;
-      color: #6c757d;
-      background: #f1f0ed;
+      color: $light-grey-color;
+      background: $antique-white-color;
       font-size: 0.7rem;
       text-align: center;
     }
@@ -334,6 +365,8 @@
   }
 
   &__item-subtotal {
+    color: $bright-terracotta-color;
+    font-weight: 700;
     white-space: nowrap;
   }
 
@@ -341,8 +374,8 @@
     display: grid;
     gap: 0.25rem;
     margin-top: 0.9rem;
-    color: #315a82;
-    background: #eaf3fb;
+    color: $steel-blue-color;
+    background: rgba($steel-blue-color, 0.12);
   }
 
   &__totals {
@@ -363,9 +396,10 @@
 
   &__grand-total {
     padding-top: 0.65rem;
-    border-top: 1px solid #e6e1d8;
+    border-top: 1px solid $antique-white-color;
     font-size: 1.1rem;
     font-weight: 700;
+    color: $bright-terracotta-color;
   }
 
   &__modal-actions {
@@ -376,8 +410,8 @@
 
   &__contact-notice {
     margin: 1rem 0 0;
-    color: #684f16;
-    background: #fff7df;
+    color: $charcoal-grey-color;
+    background: $antique-white-color;
   }
 
   &__form-section {
@@ -399,8 +433,9 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0.75rem;
-    border: 1px solid #e6e1d8;
-    border-radius: 0.5rem;
+    border: 1px solid $antique-white-color;
+    border-radius: 8px;
+    background: $white-color;
   }
 
   &__check-label {
@@ -418,7 +453,7 @@
     }
 
     small {
-      color: #6c757d;
+      color: $light-grey-color;
     }
   }
 
@@ -434,12 +469,18 @@
       width: 100%;
       min-height: 2.7rem;
       padding: 0.55rem 0.7rem;
-      border: 1px solid #b9bec2;
-      border-radius: 0.4rem;
-      color: #313638;
-      background: #fff;
+      border: 1px solid $antique-white-color;
+      border-radius: 8px;
+      color: $charcoal-grey-color;
+      background: $white-color;
       font: inherit;
       font-weight: 400;
+
+      &:focus {
+        border-color: $bright-terracotta-color;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(237, 155, 64, 0.25);
+      }
     }
 
     textarea {

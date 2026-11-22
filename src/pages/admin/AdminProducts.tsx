@@ -27,8 +27,9 @@ const AdminProducts = () => {
   const [pageData, setPageData] = useState(emptyPage);
   const [page, setPage] = useState(0);
   const [filters, setFilters] = useState<AdminProductSearchFilters>({ page, size: PAGE_SIZE });
-  const [drafts, setDrafts] = useState<Record<string, AdminProductRequest>>({});
   const [form, setForm] = useState<AdminProductRequest>(emptyForm);
+  const [editForm, setEditForm] = useState<AdminProductRequest>(emptyForm);
+  const [editingProduct, setEditingProduct] = useState<AdminProductResponse | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -40,12 +41,6 @@ const AdminProducts = () => {
     try {
       const result = await searchAdminProducts({ ...filters, page, size: PAGE_SIZE });
       setPageData(result);
-      setDrafts(Object.fromEntries(result.content.map((product) => [product.id, {
-        targetGender: product.targetGender,
-        name: product.name,
-        shortDesc: product.shortDesc,
-        longDesc: product.longDesc,
-      }])));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'No se pudieron cargar los productos.');
     } finally {
@@ -82,14 +77,18 @@ const AdminProducts = () => {
     }
   };
 
-  const handleSave = async (product: AdminProductResponse) => {
-    const draft = drafts[product.id];
-    if (!draft) return;
+  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!editingProduct) return;
     setSaving(true);
     setError('');
     try {
-      await updateAdminProduct(product.id, draft);
-      await loadProducts();
+      const updated = await updateAdminProduct(editingProduct.id, editForm);
+      setPageData((current) => ({
+        ...current,
+        content: current.content.map((product) => product.id === updated.id ? updated : product),
+      }));
+      setEditingProduct(null);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'No se pudo guardar el producto.');
     } finally {
@@ -127,7 +126,7 @@ const AdminProducts = () => {
         </button>
       </header>
 
-      {error && <div className="alert alert-danger" role="alert">{error}</div>}
+      {error && !editingProduct && <div className="alert alert-danger" role="alert">{error}</div>}
 
       {createOpen && (
         <form className="card card-body mb-4" onSubmit={(event) => void handleCreate(event)}>
@@ -248,77 +247,20 @@ const AdminProducts = () => {
         <div className="table-responsive">
           <table className="table table-striped table-hover align-middle mb-0">
             <thead>
-              <tr><th>Nombre</th><th>Género objetivo</th><th>Descripción corta</th><th>Descripción larga</th><th>Estado</th><th>Acciones</th></tr>
+              <tr><th>Nombre</th><th>Género objetivo</th><th>Descripción corta</th><th>Estado</th><th>Acciones</th></tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="py-4 text-center">Cargando productos…</td></tr>
+                <tr><td colSpan={5} className="py-4 text-center">Cargando productos…</td></tr>
               ) : pageData.content.length === 0 ? (
-                <tr><td colSpan={6} className="py-4 text-center">No hay productos para mostrar.</td></tr>
+                <tr><td colSpan={5} className="py-4 text-center">No hay productos para mostrar.</td></tr>
               ) : pageData.content.map((product) => {
-                const draft = drafts[product.id] ?? {
-                  targetGender: product.targetGender,
-                  name: product.name,
-                  shortDesc: product.shortDesc,
-                  longDesc: product.longDesc,
-                };
                 const statusAction = product.status === 'ACTIVE' ? 'Desactivar' : 'Activar';
                 return (
                   <tr key={product.id}>
-                    <td>
-                      <input
-                        aria-label={`Nombre de ${product.name}`}
-                        className="form-control form-control-sm"
-                        maxLength={255}
-                        value={draft.name}
-                        onChange={(event) => setDrafts((current) => ({
-                          ...current,
-                          [product.id]: { ...draft, name: event.target.value },
-                        }))}
-                      />
-                    </td>
-                    <td>
-                      <select
-                        aria-label={`Género objetivo de ${product.name}`}
-                        className="form-select form-select-sm"
-                        value={draft.targetGender}
-                        onChange={(event) => {
-                          if (isTargetGender(event.target.value)) {
-                            setDrafts((current) => ({
-                              ...current,
-                              [product.id]: { ...draft, targetGender: event.target.value as TargetGender },
-                            }));
-                          }
-                        }}
-                      >
-                        {TARGET_GENDERS.map((gender) => <option key={gender.value} value={gender.value}>{gender.label}</option>)}
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        aria-label={`Descripción corta de ${product.name}`}
-                        className="form-control form-control-sm"
-                        maxLength={255}
-                        value={draft.shortDesc}
-                        onChange={(event) => setDrafts((current) => ({
-                          ...current,
-                          [product.id]: { ...draft, shortDesc: event.target.value },
-                        }))}
-                      />
-                    </td>
-                    <td>
-                      <textarea
-                        aria-label={`Descripción larga de ${product.name}`}
-                        className="form-control form-control-sm"
-                        rows={2}
-                        maxLength={5000}
-                        value={draft.longDesc}
-                        onChange={(event) => setDrafts((current) => ({
-                          ...current,
-                          [product.id]: { ...draft, longDesc: event.target.value },
-                        }))}
-                      />
-                    </td>
+                    <td>{product.name}</td>
+                    <td>{TARGET_GENDERS.find((gender) => gender.value === product.targetGender)?.label ?? product.targetGender}</td>
+                    <td>{product.shortDesc}</td>
                     <td><span className={`badge ${product.status === 'ACTIVE' ? 'text-bg-success' : 'text-bg-secondary'}`}>{product.status}</span></td>
                     <td>
                       <div className="d-flex flex-wrap gap-1">
@@ -326,11 +268,19 @@ const AdminProducts = () => {
                           type="button"
                           className="btn btn-sm btn-outline-primary"
                           disabled={saving}
-                          title={`Guardar cambios de ${product.name}`}
-                          aria-label={`Guardar cambios de ${product.name}`}
-                          onClick={() => void handleSave(product)}
+                          title="Editar producto"
+                          aria-label="Editar producto"
+                          onClick={() => {
+                            setEditingProduct(product);
+                            setEditForm({
+                              targetGender: product.targetGender,
+                              name: product.name,
+                              shortDesc: product.shortDesc,
+                              longDesc: product.longDesc,
+                            });
+                          }}
                         >
-                          <i className="bi bi-check-lg" aria-hidden="true" />
+                          <i className="bi bi-pencil" aria-hidden="true" />
                         </button>
                         <button
                           type="button"
@@ -368,6 +318,95 @@ const AdminProducts = () => {
           </div>
         </div>
       </div>
+
+      {editingProduct && (
+        <>
+          <div className="modal-backdrop show" />
+          <div className="modal d-block" role="dialog" aria-modal="true" aria-labelledby="edit-product-modal-title">
+            <div className="modal-dialog modal-dialog-centered modal-lg">
+              <div className="modal-content position-relative">
+                <div className="modal-header">
+                  <h2 className="modal-title h5" id="edit-product-modal-title">Editar producto</h2>
+                </div>
+                <form onSubmit={(event) => void handleSave(event)}>
+                  <div className="modal-body">
+                    {error && <div className="alert alert-danger" role="alert">{error}</div>}
+                    <div className="row g-3">
+                      <div className="col-12 col-md-6">
+                        <label className="form-label" htmlFor="edit-product-name">Nombre</label>
+                        <input
+                          id="edit-product-name"
+                          className="form-control"
+                          maxLength={255}
+                          required
+                          value={editForm.name}
+                          onChange={(event) => setEditForm((current) => ({ ...current, name: event.target.value }))}
+                        />
+                      </div>
+                      <div className="col-12 col-md-6">
+                        <label className="form-label" htmlFor="edit-product-gender">Género objetivo</label>
+                        <select
+                          id="edit-product-gender"
+                          className="form-select"
+                          value={editForm.targetGender}
+                          onChange={(event) => {
+                            if (isTargetGender(event.target.value)) {
+                              setEditForm((current) => ({ ...current, targetGender: event.target.value as TargetGender }));
+                            }
+                          }}
+                        >
+                          {TARGET_GENDERS.map((gender) => <option key={gender.value} value={gender.value}>{gender.label}</option>)}
+                        </select>
+                      </div>
+                      <div className="col-12">
+                        <label className="form-label" htmlFor="edit-product-short-desc">Descripción corta</label>
+                        <input
+                          id="edit-product-short-desc"
+                          className="form-control"
+                          maxLength={255}
+                          required
+                          value={editForm.shortDesc}
+                          onChange={(event) => setEditForm((current) => ({ ...current, shortDesc: event.target.value }))}
+                        />
+                      </div>
+                      <div className="col-12">
+                        <label className="form-label" htmlFor="edit-product-long-desc">Descripción larga</label>
+                        <textarea
+                          id="edit-product-long-desc"
+                          className="form-control"
+                          rows={4}
+                          maxLength={5000}
+                          required
+                          value={editForm.longDesc}
+                          onChange={(event) => setEditForm((current) => ({ ...current, longDesc: event.target.value }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      title="Cancelar edición"
+                      aria-label="Cancelar edición"
+                      onClick={() => {
+                        setEditingProduct(null);
+                        setError('');
+                      }}
+                      disabled={saving}
+                    >
+                      <i className="bi bi-x-lg" aria-hidden="true" />
+                    </button>
+                    <button type="submit" className="btn btn-primary" title="Guardar cambios" aria-label="Guardar cambios" disabled={saving}>
+                      <i className="bi bi-check-lg" aria-hidden="true" />
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </section>
   );
 };

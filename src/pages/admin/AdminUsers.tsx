@@ -498,9 +498,6 @@ const AdminUsers = () => {
                   {modalMode === 'operator' && 'Nuevo Operador (OPERATOR)'}
                   {modalMode === 'edit' && 'Editar Cliente'}
                 </h2>
-                <button type="button" className="btn btn-outline-secondary" title="Cerrar formulario" aria-label="Cerrar formulario" onClick={closeModal} disabled={saving}>
-                  <i className="bi bi-x-lg" aria-hidden="true" />
-                </button>
               </div>
 
               {modalMode === 'wholesaler' && (

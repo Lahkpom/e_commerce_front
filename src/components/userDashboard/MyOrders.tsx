@@ -266,7 +266,7 @@ const MyOrders = ({ mode }: MyOrdersProps) => {
                   {canReturn && (
                     <button
                       type="button"
-                      className="my-orders__button my-orders__button--primary"
+                      className="my-orders__button my-orders__button--danger"
                       onClick={() => handleRequestReturn(order.saleId)}
                       disabled={loadingReturn === order.saleId}
                     >

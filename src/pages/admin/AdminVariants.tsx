@@ -97,8 +97,9 @@ const AdminVariants = () => {
   const [filters, setFilters] = useState<VariantFilters>(emptyFilters);
   const [products, setProducts] = useState<ProductOption[]>([]);
   const [colors, setColors] = useState<ColorResponse[]>([]);
-  const [drafts, setDrafts] = useState<Record<number, VariantFormValues>>({});
   const [form, setForm] = useState<VariantFormValues>(emptyForm);
+  const [editForm, setEditForm] = useState<VariantFormValues>(emptyForm);
+  const [editingVariant, setEditingVariant] = useState<AdminVariantResponse | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -119,7 +120,6 @@ const AdminVariants = () => {
     try {
       const result = await searchAdminVariants(searchFilters);
       setPageData(result);
-      setDrafts(Object.fromEntries(result.content.map((variant) => [variant.id, toVariantForm(variant)])));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'No se pudieron cargar las variantes.');
     } finally {
@@ -156,6 +156,10 @@ const AdminVariants = () => {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  const changeEditForm = (key: keyof VariantFormValues, value: string) => {
+    setEditForm((current) => ({ ...current, [key]: value }));
+  };
+
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const payload = toUpdatePayload(form);
@@ -179,8 +183,10 @@ const AdminVariants = () => {
     }
   };
 
-  const handleSave = async (variant: AdminVariantResponse) => {
-    const payload = toUpdatePayload(drafts[variant.id] ?? toVariantForm(variant));
+  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!editingVariant) return;
+    const payload = toUpdatePayload(editForm);
     if (!payload) {
       setError('Completá todos los campos con valores válidos.');
       return;
@@ -188,12 +194,12 @@ const AdminVariants = () => {
     setSaving(true);
     setError('');
     try {
-      const updated = await updateVariant(variant.id, payload);
+      const updated = await updateVariant(editingVariant.id, payload);
       setPageData((current) => ({
         ...current,
         content: current.content.map((item) => item.id === updated.id ? updated : item),
       }));
-      setDrafts((current) => ({ ...current, [updated.id]: toVariantForm(updated) }));
+      setEditingVariant(null);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'No se pudo guardar la variante.');
     } finally {
@@ -238,7 +244,7 @@ const AdminVariants = () => {
         </button>
       </header>
 
-      {error && <div className="alert alert-danger" role="alert">{error}</div>}
+      {error && !editingVariant && <div className="alert alert-danger" role="alert">{error}</div>}
 
       {createOpen && (
         <form className="card card-body mb-4" onSubmit={(event) => void handleCreate(event)}>
@@ -342,50 +348,40 @@ const AdminVariants = () => {
         <div className="table-responsive">
           <table className="table table-striped table-hover align-middle mb-0">
             <thead>
-              <tr><th>Producto</th><th>Color</th><th>Talle</th><th>SKU</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr>
+              <tr><th>Producto</th><th>Color</th><th>Talle</th><th>SKU</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={9} className="py-4 text-center">Cargando variantes…</td></tr>
+                <tr><td colSpan={8} className="py-4 text-center">Cargando variantes…</td></tr>
               ) : pageData.content.length === 0 ? (
-                <tr><td colSpan={9} className="py-4 text-center">No hay variantes para mostrar.</td></tr>
+                <tr><td colSpan={8} className="py-4 text-center">No hay variantes para mostrar.</td></tr>
               ) : pageData.content.map((variant) => {
-                const draft = drafts[variant.id] ?? toVariantForm(variant);
                 return (
                   <tr key={variant.id}>
                     <td>{variant.productName}</td>
                     <td>
                       <span className="d-inline-block rounded-circle border me-1 align-middle" aria-label={variant.colorCode} style={{ width: 18, height: 18, backgroundColor: variant.colorCode }} />
-                      <select aria-label={`Color de ${variant.sku}`} className="form-select form-select-sm d-inline-block w-auto" value={draft.colorId} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, colorId: event.target.value } }))}>
-                        {activeColors.map((color) => <option key={color.id} value={color.id}>{color.name}</option>)}
-                      </select>
+                      <span>{variant.colorName}</span>
                     </td>
-                    <td>
-                      <select aria-label={`Talle de ${variant.sku}`} className="form-select form-select-sm" value={draft.size} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, size: event.target.value } }))}>
-                        {NUMERIC_SIZES.map((size) => <option key={size} value={size}>{size.replace(/_/g, ' ').replace('T ', '')}</option>)}
-                      </select>
-                    </td>
-                    <td><input aria-label={`SKU de ${variant.sku}`} className="form-control form-control-sm text-uppercase" value={draft.sku} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, sku: event.target.value.toUpperCase() } }))} /></td>
-                    <td>
-                      <textarea
-                        aria-label={`Descripción de ${variant.sku}`}
-                        className="form-control form-control-sm"
-                        rows={2}
-                        maxLength={255}
-                        value={draft.desc}
-                        onChange={(event) => setDrafts((current) => ({
-                          ...current,
-                          [variant.id]: { ...draft, desc: event.target.value },
-                        }))}
-                      />
-                    </td>
-                    <td><input aria-label={`Precio de ${variant.sku}`} className="form-control form-control-sm" type="number" min="0" step="0.01" value={draft.price} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, price: event.target.value } }))} /></td>
-                    <td><input aria-label={`Stock de ${variant.sku}`} className="form-control form-control-sm" type="number" min="0" step="1" value={draft.stock} onChange={(event) => setDrafts((current) => ({ ...current, [variant.id]: { ...draft, stock: event.target.value } }))} /></td>
+                    <td>{variant.size.replace(/_/g, ' ').replace('T ', '')}</td>
+                    <td>{variant.sku}</td>
+                    <td>{variant.price}</td>
+                    <td>{variant.stock}</td>
                     <td><span className={`badge ${variant.rowStatus === 'ACTIVE' ? 'text-bg-success' : 'text-bg-secondary'}`}>{variant.rowStatus}</span></td>
                     <td>
                       <div className="d-flex flex-wrap gap-1">
-                        <button type="button" className="btn btn-sm btn-outline-primary" disabled={saving} title={`Guardar cambios de ${variant.sku}`} aria-label={`Guardar cambios de ${variant.sku}`} onClick={() => void handleSave(variant)}>
-                          <i className="bi bi-check-lg" aria-hidden="true" />
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary"
+                          disabled={saving}
+                          title="Editar variante"
+                          aria-label="Editar variante"
+                          onClick={() => {
+                            setEditingVariant(variant);
+                            setEditForm(toVariantForm(variant));
+                          }}
+                        >
+                          <i className="bi bi-pencil" aria-hidden="true" />
                         </button>
                         <button type="button" className="btn btn-sm btn-outline-secondary" title={`${variant.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'} ${variant.sku}`} aria-label={`${variant.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'} ${variant.sku}`} onClick={() => void handleStatus(variant)}>
                           <i className="bi bi-arrow-repeat" aria-hidden="true" />
@@ -411,6 +407,128 @@ const AdminVariants = () => {
           </div>
         </div>
       </div>
+
+      {editingVariant && (
+        <>
+          <div className="modal-backdrop show" />
+          <div className="modal d-block" role="dialog" aria-modal="true" aria-labelledby="edit-variant-modal-title">
+            <div className="modal-dialog modal-dialog-centered modal-lg">
+              <div className="modal-content position-relative">
+                <div className="modal-header">
+                  <h2 className="modal-title h5" id="edit-variant-modal-title">Editar variante</h2>
+                </div>
+                <form onSubmit={(event) => void handleSave(event)}>
+                  <div className="modal-body">
+                    {error && <div className="alert alert-danger" role="alert">{error}</div>}
+                    <div className="row g-3">
+                      <div className="col-12 col-md-6">
+                        <label className="form-label" htmlFor="edit-variant-product">Producto (solo lectura)</label>
+                        <input id="edit-variant-product" className="form-control" value={editingVariant.productName} readOnly />
+                      </div>
+                      <div className="col-12 col-md-6">
+                        <label className="form-label" htmlFor="edit-variant-color">Color</label>
+                        <select
+                          id="edit-variant-color"
+                          className="form-select"
+                          required
+                          value={editForm.colorId}
+                          onChange={(event) => changeEditForm('colorId', event.target.value)}
+                        >
+                          {!activeColors.some((color) => color.id === editingVariant.colorId) && (
+                            <option value={editingVariant.colorId}>
+                              {editingVariant.colorName}
+                              {colors.some((color) => color.id === editingVariant.colorId && color.rowStatus !== 'ACTIVE') ? ' (inactivo)' : ''}
+                            </option>
+                          )}
+                          {activeColors.map((color) => <option key={color.id} value={color.id}>{color.name}</option>)}
+                        </select>
+                      </div>
+                      <div className="col-12 col-md-3">
+                        <label className="form-label" htmlFor="edit-variant-size">Talle</label>
+                        <select
+                          id="edit-variant-size"
+                          className="form-select"
+                          required
+                          value={editForm.size}
+                          onChange={(event) => changeEditForm('size', event.target.value)}
+                        >
+                          {NUMERIC_SIZES.map((size) => <option key={size} value={size}>{size.replace(/_/g, ' ').replace('T ', '')}</option>)}
+                        </select>
+                      </div>
+                      <div className="col-12 col-md-3">
+                        <label className="form-label" htmlFor="edit-variant-sku">SKU</label>
+                        <input
+                          id="edit-variant-sku"
+                          className="form-control text-uppercase"
+                          required
+                          maxLength={100}
+                          value={editForm.sku}
+                          onChange={(event) => changeEditForm('sku', event.target.value.toUpperCase())}
+                        />
+                      </div>
+                      <div className="col-12 col-md-3">
+                        <label className="form-label" htmlFor="edit-variant-price">Precio</label>
+                        <input
+                          id="edit-variant-price"
+                          className="form-control"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          required
+                          value={editForm.price}
+                          onChange={(event) => changeEditForm('price', event.target.value)}
+                        />
+                      </div>
+                      <div className="col-12 col-md-3">
+                        <label className="form-label" htmlFor="edit-variant-stock">Stock</label>
+                        <input
+                          id="edit-variant-stock"
+                          className="form-control"
+                          type="number"
+                          min="0"
+                          step="1"
+                          required
+                          value={editForm.stock}
+                          onChange={(event) => changeEditForm('stock', event.target.value)}
+                        />
+                      </div>
+                      <div className="col-12">
+                        <label className="form-label" htmlFor="edit-variant-desc">Descripción</label>
+                        <input
+                          id="edit-variant-desc"
+                          className="form-control"
+                          required
+                          maxLength={255}
+                          value={editForm.desc}
+                          onChange={(event) => changeEditForm('desc', event.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      title="Cancelar edición"
+                      aria-label="Cancelar edición"
+                      onClick={() => {
+                        setEditingVariant(null);
+                        setError('');
+                      }}
+                      disabled={saving}
+                    >
+                      <i className="bi bi-x-lg" aria-hidden="true" />
+                    </button>
+                    <button type="submit" className="btn btn-primary" title="Guardar cambios" aria-label="Guardar cambios" disabled={saving}>
+                      <i className="bi bi-check-lg" aria-hidden="true" />
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </section>
   );
 };
