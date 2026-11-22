@@ -1,19 +1,19 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import Layout from '../components/layout/Layout.jsx';
+import Layout from '../components/layout/Layout';
 
-import Home from '../pages/Home.jsx';
-import ProductsContainer from '../pages/ProductsContainer.jsx';
+import Home from '../pages/Home';
+import ProductsPage from '../pages/ProductsPage';
 import ProductDetails from '../pages/ProductDetails';
-import ContactContainer from '../pages/ContactContainer.jsx';
-import Payment_Shipping from '../pages/Payment_Shipping.jsx';
+import ContactPage from '../pages/ContactPage';
+import PaymentShippingPage from '../pages/PaymentShippingPage';
 
 import Login from '../pages/login/Login';
 import Signup from '../pages/login/Signup';
 
-import Error404 from '../pages/errors/Error404.jsx';
+import Error404 from '../pages/errors/Error404';
 import ProtectedRoute from '../components/ProtectedRoute';
-import AdminLayout from '../components/admin/AdminLayout';
+import AdminLayout from '../components/admin/layout/AdminLayout';
 import AdminHome from '../pages/admin/AdminHome';
 import AdminProducts from '../pages/admin/AdminProducts';
 import AdminVariants from '../pages/admin/AdminVariants';
@@ -39,7 +39,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'productos',
-        element: <ProductsContainer />,
+        element: <ProductsPage />,
       },
       {
         path: 'productos/:id_product',
@@ -47,11 +47,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'pagos_envios',
-        element: <Payment_Shipping />,
+        element: <PaymentShippingPage />,
       },
       {
         path: 'contacto',
-        element: <ContactContainer />,
+        element: <ContactPage />,
       },
       {
         path: 'iniciar_sesion',

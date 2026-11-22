@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { createTitle } from '../../utils/createTitle.jsx';
+import { createTitle } from '../../utils/createTitle';
 import ProductCard from './ProductCard';
 import { TARGET_GENDERS, isTargetGender, type TargetGender } from '../../constants/products';
 import { getProductsForHomepage } from '../../services/productService';
 import type { ProductCatalogItem } from '../../types/products';
 
 import './Products.scss';
-import Loader from '../loader/Loader.jsx';
+import Loader from '../loader/Loader';
 
 const Products = () => {
   const [products, setProducts] = useState<ProductCatalogItem[]>([]);

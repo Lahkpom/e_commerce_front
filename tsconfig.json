@@ -6,8 +6,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Permite convivir archivos JS y TS en el mismo proyecto */
-    "allowJs": true,
+    "allowJs": false,
     "jsx": "react-jsx",
 
     /* Estrategia de módulos y resolución */

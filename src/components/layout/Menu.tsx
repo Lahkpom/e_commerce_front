@@ -1,9 +1,9 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
-import useMainData from '../../hooks/useMainData.js';
+import useMainData from '../../hooks/useMainData';
 import useCart from '../../hooks/useCart';
-import MenuNavLink from './MenuNavLink.jsx';
+import MenuNavLink from './MenuNavLink';
 import './Menu.scss';
 
 const LINKS = [
