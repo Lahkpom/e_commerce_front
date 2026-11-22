@@ -289,7 +289,9 @@ const AdminSales = () => {
               />
             </div>
             <div className="col-12">
-              <button type="submit" className="btn btn-primary">Aplicar filtros</button>
+              <button type="submit" className="btn btn-primary" title="Aplicar filtros" aria-label="Aplicar filtros">
+                <i className="bi bi-funnel" aria-hidden="true" />
+              </button>
             </div>
           </div>
         </form>
@@ -299,7 +301,7 @@ const AdminSales = () => {
 
       <div className="card">
         <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
+          <table className="table table-striped table-hover align-middle mb-0">
             <thead>
               <tr>
                 <th>ID</th>
@@ -337,9 +339,11 @@ const AdminSales = () => {
                     <button
                       type="button"
                       className="btn btn-sm btn-outline-primary"
+                      title={`Ver detalle de venta ${sale.saleId.slice(-8).toUpperCase()}`}
+                      aria-label={`Ver detalle de venta ${sale.saleId.slice(-8).toUpperCase()}`}
                       onClick={() => setSelectedSaleId(sale.saleId)}
                     >
-                      Gestionar / Detalle
+                      <i className="bi bi-eye" aria-hidden="true" />
                     </button>
                   </td>
                 </tr>

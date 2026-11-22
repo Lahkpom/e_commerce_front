@@ -2,6 +2,7 @@ import { apiRequest } from './api';
 import type {
   AdminProductRequest,
   AdminProductResponse,
+  AdminProductSearchFilters,
   AdminVariantResponse,
   AdminVariantSearchFilters,
   ColorRequest,
@@ -34,10 +35,22 @@ export const updateColorStatus = (id: number, rowStatus: RowStatus): Promise<Col
     body: { rowStatus },
   });
 
-export const getAdminProducts = (page = 0, size = 20): Promise<PageResponse<AdminProductResponse>> => {
-  const params = new URLSearchParams({ page: String(page), size: String(size) });
+export const searchAdminProducts = (
+  filters: AdminProductSearchFilters = {},
+): Promise<PageResponse<AdminProductResponse>> => {
+  const params = new URLSearchParams({
+    page: String(filters.page ?? 0),
+    size: String(filters.size ?? 20),
+  });
+  if (filters.targetGender) params.set('targetGender', filters.targetGender);
+  if (filters.rowStatus) params.set('rowStatus', filters.rowStatus);
+  if (filters.search?.trim()) params.set('search', filters.search.trim());
   return apiRequest<PageResponse<AdminProductResponse>>(withQuery('/admin/products', params));
 };
+
+export const getAdminProducts = (
+  filters: AdminProductSearchFilters = {},
+): Promise<PageResponse<AdminProductResponse>> => searchAdminProducts(filters);
 
 export const getActiveProductOptions = (): Promise<ProductOption[]> =>
   apiRequest<ProductOption[]>('/admin/products/options');

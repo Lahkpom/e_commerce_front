@@ -34,6 +34,15 @@ export interface ProductOption {
   id: string;
   name: string;
   targetGender: TargetGender;
+  rowStatus: RowStatus;
+}
+
+export interface AdminProductSearchFilters {
+  targetGender?: TargetGender;
+  rowStatus?: Exclude<RowStatus, 'DELETED'>;
+  search?: string;
+  page?: number;
+  size?: number;
 }
 
 export interface AdminProductRequest {

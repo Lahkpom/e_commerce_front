@@ -105,6 +105,7 @@ const AdminVariants = () => {
   const [error, setError] = useState('');
 
   const activeColors = colors.filter((color) => color.rowStatus === 'ACTIVE');
+  const activeProducts = products.filter((product) => product.rowStatus === 'ACTIVE');
 
   const loadVariants = useCallback(async () => {
     setLoading(true);
@@ -226,8 +227,14 @@ const AdminVariants = () => {
           <h1 className="h2 mb-1">Variantes</h1>
           <p className="text-muted mb-0">Filtrá y gestioná talles, colores, SKU, precios y stock.</p>
         </div>
-        <button type="button" className="btn btn-primary" onClick={() => setCreateOpen((open) => !open)}>
-          {createOpen ? 'Cerrar formulario' : 'Crear variante'}
+        <button
+          type="button"
+          className="btn btn-primary"
+          title={createOpen ? 'Cerrar formulario' : 'Crear variante'}
+          aria-label={createOpen ? 'Cerrar formulario' : 'Crear variante'}
+          onClick={() => setCreateOpen((open) => !open)}
+        >
+          <i className={`bi ${createOpen ? 'bi-x-lg' : 'bi-plus-lg'}`} aria-hidden="true" />
         </button>
       </header>
 
@@ -241,7 +248,7 @@ const AdminVariants = () => {
               <label className="form-label" htmlFor="variant-product">Producto</label>
               <select id="variant-product" className="form-select" required value={form.productId} onChange={(event) => changeForm('productId', event.target.value)}>
                 <option value="">Seleccionar producto</option>
-                {products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
+                {activeProducts.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
               </select>
             </div>
             <div className="col-12 col-md-6">
@@ -251,20 +258,16 @@ const AdminVariants = () => {
                 {activeColors.map((color) => <option key={color.id} value={color.id}>{color.name}</option>)}
               </select>
             </div>
-            <div className="col-12 col-md-4">
+            <div className="col-12 col-md-3">
               <label className="form-label" htmlFor="variant-size">Talle</label>
               <select id="variant-size" className="form-select" required value={form.size} onChange={(event) => changeForm('size', event.target.value)}>
                 <option value="">Seleccionar talle</option>
                 {NUMERIC_SIZES.map((size) => <option key={size} value={size}>{size.replace(/_/g, ' ').replace('T ', '')}</option>)}
               </select>
             </div>
-            <div className="col-12 col-md-4">
+            <div className="col-12 col-md-3">
               <label className="form-label" htmlFor="variant-sku">SKU</label>
               <input id="variant-sku" className="form-control text-uppercase" required maxLength={100} value={form.sku} onChange={(event) => changeForm('sku', event.target.value.toUpperCase())} />
-            </div>
-            <div className="col-12 col-md-4">
-              <label className="form-label" htmlFor="variant-desc">Descripción</label>
-              <input id="variant-desc" className="form-control" required value={form.desc} onChange={(event) => changeForm('desc', event.target.value)} />
             </div>
             <div className="col-12 col-md-3">
               <label className="form-label" htmlFor="variant-price">Precio</label>
@@ -274,10 +277,20 @@ const AdminVariants = () => {
               <label className="form-label" htmlFor="variant-stock">Stock</label>
               <input id="variant-stock" className="form-control" type="number" min="0" step="1" required value={form.stock} onChange={(event) => changeForm('stock', event.target.value)} />
             </div>
+            <div className="col-12">
+              <label className="form-label" htmlFor="variant-desc">Descripción</label>
+              <input id="variant-desc" className="form-control" required value={form.desc} onChange={(event) => changeForm('desc', event.target.value)} />
+            </div>
           </div>
           <div className="mt-3">
-            <button type="submit" className="btn btn-primary" disabled={saving || products.length === 0 || activeColors.length === 0}>
-              {saving ? 'Guardando…' : 'Crear variante'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={saving || activeProducts.length === 0 || activeColors.length === 0}
+              title="Crear variante"
+              aria-label="Crear variante"
+            >
+              <i className="bi bi-check-lg" aria-hidden="true" />
             </button>
           </div>
         </form>
@@ -289,7 +302,11 @@ const AdminVariants = () => {
             <label className="form-label" htmlFor="filter-product">Producto</label>
             <select id="filter-product" className="form-select" value={filters.productId} onChange={(event) => changeFilter('productId', event.target.value)}>
               <option value="">Todos</option>
-              {products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.name}{product.rowStatus === 'INACTIVE' ? ' (INACTIVE)' : ''}
+                </option>
+              ))}
             </select>
           </div>
           <div className="col-12 col-md">
@@ -323,7 +340,7 @@ const AdminVariants = () => {
 
       <div className="card">
         <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
+          <table className="table table-striped table-hover align-middle mb-0">
             <thead>
               <tr><th>Producto</th><th>Color</th><th>Talle</th><th>SKU</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr>
             </thead>
@@ -355,10 +372,16 @@ const AdminVariants = () => {
                     <td><span className={`badge ${variant.rowStatus === 'ACTIVE' ? 'text-bg-success' : 'text-bg-secondary'}`}>{variant.rowStatus}</span></td>
                     <td>
                       <div className="d-flex flex-wrap gap-1">
-                        <button type="button" className="btn btn-sm btn-outline-primary" disabled={saving} onClick={() => void handleSave(variant)}>Guardar</button>
-                        <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => void handleStatus(variant)}>{variant.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'}</button>
+                        <button type="button" className="btn btn-sm btn-outline-primary" disabled={saving} title={`Guardar cambios de ${variant.sku}`} aria-label={`Guardar cambios de ${variant.sku}`} onClick={() => void handleSave(variant)}>
+                          <i className="bi bi-check-lg" aria-hidden="true" />
+                        </button>
+                        <button type="button" className="btn btn-sm btn-outline-secondary" title={`${variant.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'} ${variant.sku}`} aria-label={`${variant.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'} ${variant.sku}`} onClick={() => void handleStatus(variant)}>
+                          <i className="bi bi-arrow-repeat" aria-hidden="true" />
+                        </button>
                         {role === 'ADMIN' && (
-                          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void handleStatus(variant, true)}>Eliminar</button>
+                          <button type="button" className="btn btn-sm btn-outline-danger" title={`Eliminar ${variant.sku}`} aria-label={`Eliminar ${variant.sku}`} onClick={() => void handleStatus(variant, true)}>
+                            <i className="bi bi-trash" aria-hidden="true" />
+                          </button>
                         )}
                       </div>
                     </td>

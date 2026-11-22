@@ -135,12 +135,18 @@ const AdminColors = () => {
           </div>
         </div>
         <div className="d-flex gap-2 mt-3">
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Guardando…' : editingId === null ? 'Crear color' : 'Guardar cambios'}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={saving}
+            title={editingId === null ? 'Crear color' : 'Guardar cambios'}
+            aria-label={editingId === null ? 'Crear color' : 'Guardar cambios'}
+          >
+            <i className="bi bi-check-lg" aria-hidden="true" />
           </button>
           {editingId !== null && (
-            <button type="button" className="btn btn-outline-secondary" onClick={resetForm}>
-              Cancelar
+            <button type="button" className="btn btn-outline-secondary" title="Cerrar edición" aria-label="Cerrar edición" onClick={resetForm}>
+              <i className="bi bi-x-lg" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -148,7 +154,7 @@ const AdminColors = () => {
 
       <div className="card">
         <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
+          <table className="table table-striped table-hover align-middle mb-0">
             <thead>
               <tr><th>Color</th><th>Nombre</th><th>Código</th><th>Descripción</th><th>Estado</th><th>Acciones</th></tr>
             </thead>
@@ -169,19 +175,27 @@ const AdminColors = () => {
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-primary"
+                        title={`Editar ${color.name}`}
+                        aria-label={`Editar ${color.name}`}
                         onClick={() => {
                           setForm({ name: color.name, desc: color.desc, code: color.code });
                           setEditingId(color.id);
                         }}
                       >
-                        Editar
+                        <i className="bi bi-pencil" aria-hidden="true" />
                       </button>
-                      <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => void handleStatus(color)}>
-                        {color.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'}
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary"
+                        title={`${color.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'} ${color.name}`}
+                        aria-label={`${color.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'} ${color.name}`}
+                        onClick={() => void handleStatus(color)}
+                      >
+                        <i className="bi bi-arrow-repeat" aria-hidden="true" />
                       </button>
                       {role === 'ADMIN' && (
-                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void handleStatus(color, true)}>
-                          Eliminar
+                        <button type="button" className="btn btn-sm btn-outline-danger" title={`Eliminar ${color.name}`} aria-label={`Eliminar ${color.name}`} onClick={() => void handleStatus(color, true)}>
+                          <i className="bi bi-trash" aria-hidden="true" />
                         </button>
                       )}
                     </div>

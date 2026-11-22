@@ -284,12 +284,24 @@ const AdminUsers = () => {
           <p className="text-muted mb-0">Administrá clientes, mayoristas y cuentas del equipo.</p>
         </div>
         {activeSegment === 'OPERATORS' ? (
-          <button type="button" className="btn btn-primary" onClick={() => setModalMode('operator')}>
-            + Nuevo Operador (OPERATOR)
+          <button
+            type="button"
+            className="btn btn-primary"
+            title="Crear operador"
+            aria-label="Crear operador"
+            onClick={() => setModalMode('operator')}
+          >
+            <i className="bi bi-person-plus" aria-hidden="true" />
           </button>
         ) : (
-          <button type="button" className="btn btn-primary" onClick={() => setModalMode('wholesaler')}>
-            + Nuevo Mayorista (WHOLESALER)
+          <button
+            type="button"
+            className="btn btn-primary"
+            title="Crear mayorista"
+            aria-label="Crear mayorista"
+            onClick={() => setModalMode('wholesaler')}
+          >
+            <i className="bi bi-person-plus" aria-hidden="true" />
           </button>
         )}
       </header>
@@ -374,7 +386,7 @@ const AdminUsers = () => {
 
       <div className="card">
         <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
+          <table className="table table-striped table-hover align-middle mb-0">
             <thead>
               <tr>
                 <th>Nombre / Razón Social</th>
@@ -413,27 +425,33 @@ const AdminUsers = () => {
                           type="button"
                           className="btn btn-sm btn-outline-primary"
                           disabled={saving}
+                          title={`Editar ${user.userName}`}
+                          aria-label={`Editar ${user.userName}`}
                           onClick={() => openEditModal(user)}
                         >
-                          Editar
+                          <i className="bi bi-pencil" aria-hidden="true" />
                         </button>
                       )}
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-secondary"
                         disabled={saving}
+                        title={`${user.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'} ${user.userName}`}
+                        aria-label={`${user.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'} ${user.userName}`}
                         onClick={() => void handleStatus(user)}
                       >
-                        {user.rowStatus === 'ACTIVE' ? 'Desactivar' : 'Activar'}
+                        <i className="bi bi-arrow-repeat" aria-hidden="true" />
                       </button>
                       {role === 'ADMIN' && (
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-danger"
                           disabled={saving}
+                          title={`Eliminar ${user.userName}`}
+                          aria-label={`Eliminar ${user.userName}`}
                           onClick={() => void handleStatus(user, true)}
                         >
-                          Eliminar
+                          <i className="bi bi-trash" aria-hidden="true" />
                         </button>
                       )}
                     </div>
@@ -480,7 +498,9 @@ const AdminUsers = () => {
                   {modalMode === 'operator' && 'Nuevo Operador (OPERATOR)'}
                   {modalMode === 'edit' && 'Editar Cliente'}
                 </h2>
-                <button type="button" className="btn-close" aria-label="Cerrar" onClick={closeModal} disabled={saving} />
+                <button type="button" className="btn btn-outline-secondary" title="Cerrar formulario" aria-label="Cerrar formulario" onClick={closeModal} disabled={saving}>
+                  <i className="bi bi-x-lg" aria-hidden="true" />
+                </button>
               </div>
 
               {modalMode === 'wholesaler' && (
@@ -517,8 +537,12 @@ const AdminUsers = () => {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>Cancelar</button>
-                    <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Creando…' : 'Crear mayorista'}</button>
+                    <button type="button" className="btn btn-outline-secondary" title="Cerrar formulario" aria-label="Cerrar formulario" onClick={closeModal} disabled={saving}>
+                      <i className="bi bi-x-lg" aria-hidden="true" />
+                    </button>
+                    <button type="submit" className="btn btn-primary" title="Crear mayorista" aria-label="Crear mayorista" disabled={saving}>
+                      <i className="bi bi-check-lg" aria-hidden="true" />
+                    </button>
                   </div>
                 </form>
               )}
@@ -545,8 +569,12 @@ const AdminUsers = () => {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>Cancelar</button>
-                    <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Creando…' : 'Crear operador'}</button>
+                    <button type="button" className="btn btn-outline-secondary" title="Cerrar formulario" aria-label="Cerrar formulario" onClick={closeModal} disabled={saving}>
+                      <i className="bi bi-x-lg" aria-hidden="true" />
+                    </button>
+                    <button type="submit" className="btn btn-primary" title="Crear operador" aria-label="Crear operador" disabled={saving}>
+                      <i className="bi bi-check-lg" aria-hidden="true" />
+                    </button>
                   </div>
                 </form>
               )}
@@ -617,8 +645,12 @@ const AdminUsers = () => {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-outline-secondary" onClick={closeModal} disabled={saving}>Cancelar</button>
-                    <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</button>
+                    <button type="button" className="btn btn-outline-secondary" title="Cerrar formulario" aria-label="Cerrar formulario" onClick={closeModal} disabled={saving}>
+                      <i className="bi bi-x-lg" aria-hidden="true" />
+                    </button>
+                    <button type="submit" className="btn btn-primary" title="Guardar cambios" aria-label="Guardar cambios" disabled={saving}>
+                      <i className="bi bi-check-lg" aria-hidden="true" />
+                    </button>
                   </div>
                 </form>
               )}
