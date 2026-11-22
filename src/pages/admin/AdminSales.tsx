@@ -105,10 +105,38 @@ const formatDate = (value: string): string => {
   return new Intl.DateTimeFormat('es-AR', { dateStyle: 'medium' }).format(date);
 };
 
-const toIsoDateTime = (value: string): string | undefined => {
+const toStartOfDayIso = (value: string): string | undefined => {
   if (!value) return undefined;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return undefined;
+  const [, yearText, monthText, dayText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+  if (
+    date.getFullYear() !== year
+    || date.getMonth() !== month - 1
+    || date.getDate() !== day
+  ) return undefined;
+  return date.toISOString();
+};
+
+const toEndOfDayIso = (value: string): string | undefined => {
+  if (!value) return undefined;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return undefined;
+  const [, yearText, monthText, dayText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(year, month - 1, day, 23, 59, 59, 999);
+  if (
+    date.getFullYear() !== year
+    || date.getMonth() !== month - 1
+    || date.getDate() !== day
+  ) return undefined;
+  return date.toISOString();
 };
 
 const getErrorMessage = (error: unknown): string =>
@@ -131,6 +159,8 @@ const AdminSales = () => {
     requestId.current = currentRequestId;
     setLoading(true);
     setError('');
+    const startDate = toStartOfDayIso(filters.startDate);
+    const endDate = toEndOfDayIso(filters.endDate);
 
     const commonFilters = tab === 'audit'
       ? { auditOnly: true }
@@ -140,8 +170,8 @@ const AdminSales = () => {
         ...(filters.saleStatus ? { saleStatus: filters.saleStatus as SaleStatus } : {}),
         ...(filters.paymentStatus ? { paymentStatus: filters.paymentStatus as PaymentStatus } : {}),
         ...(filters.customerEmail.trim() ? { customerEmail: filters.customerEmail.trim() } : {}),
-        ...(toIsoDateTime(filters.startDate) ? { startDate: toIsoDateTime(filters.startDate) } : {}),
-        ...(toIsoDateTime(filters.endDate) ? { endDate: toIsoDateTime(filters.endDate) } : {}),
+        ...(startDate ? { startDate } : {}),
+        ...(endDate ? { endDate } : {}),
       };
 
     try {
@@ -229,8 +259,8 @@ const AdminSales = () => {
 
       {tab !== 'audit' && (
         <form className="card card-body mb-4" onSubmit={(event) => handleApplyFilters(event)}>
-          <div className="row g-3 align-items-end">
-            <div className="col-12 col-md-3">
+          <div className="row g-2 align-items-end">
+            <div className="col-12 col-sm-6 col-lg-2">
               <label className="form-label" htmlFor="admin-sales-status">Estado de venta</label>
               <select
                 id="admin-sales-status"
@@ -244,7 +274,7 @@ const AdminSales = () => {
                 ))}
               </select>
             </div>
-            <div className="col-12 col-md-3">
+            <div className="col-12 col-sm-6 col-lg-2">
               <label className="form-label" htmlFor="admin-sales-payment-status">Estado de pago</label>
               <select
                 id="admin-sales-payment-status"
@@ -258,7 +288,7 @@ const AdminSales = () => {
                 ))}
               </select>
             </div>
-            <div className="col-12 col-md-3">
+            <div className="col-12 col-md-4 col-lg-4">
               <label className="form-label" htmlFor="admin-sales-email">Email del cliente</label>
               <input
                 id="admin-sales-email"
@@ -268,21 +298,21 @@ const AdminSales = () => {
                 onChange={(event) => changeDraftFilter('customerEmail', event.target.value)}
               />
             </div>
-            <div className="col-12 col-md-3">
+            <div className="col-12 col-sm-6 col-md-4 col-lg-2">
               <label className="form-label" htmlFor="admin-sales-from">Desde</label>
               <input
                 id="admin-sales-from"
-                type="datetime-local"
+                type="date"
                 className="form-control"
                 value={draftFilters.startDate}
                 onChange={(event) => changeDraftFilter('startDate', event.target.value)}
               />
             </div>
-            <div className="col-12 col-md-3">
+            <div className="col-12 col-sm-6 col-md-4 col-lg-2">
               <label className="form-label" htmlFor="admin-sales-to">Hasta</label>
               <input
                 id="admin-sales-to"
-                type="datetime-local"
+                type="date"
                 className="form-control"
                 value={draftFilters.endDate}
                 onChange={(event) => changeDraftFilter('endDate', event.target.value)}

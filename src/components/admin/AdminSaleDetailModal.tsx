@@ -408,33 +408,46 @@ const AdminSaleDetailModal = ({
               <section className="my-orders__detail-section" aria-labelledby="admin-sale-fiscal-title">
                 <h3 className="my-orders__section-title" id="admin-sale-fiscal-title">4. Facturación electrónica ARCA</h3>
                 {receipts.length > 0 ? (
-                  <div className="table-responsive">
-                    <table className="table table-sm align-middle">
-                      <thead>
-                        <tr><th>Tipo</th><th>Comprobante</th><th>CAE</th><th>Vencimiento</th><th>Emisión</th><th>Total</th><th>QR</th></tr>
-                      </thead>
-                      <tbody>
-                        {receipts.map((receipt) => (
-                          <tr key={receipt.fiscalReceiptId}>
-                            <td>{receipt.receiptType}</td>
-                            <td>{receipt.formattedReceiptNumber}</td>
-                            <td>{receipt.cae}</td>
-                            <td>{formatLocalDate(receipt.caeDueDate)}</td>
-                            <td>{formatLocalDate(receipt.issueDate)}</td>
-                            <td>{formatCurrency(receipt.totalAmount)}</td>
-                            <td>
-                              <div className="d-flex flex-wrap gap-1">
-                                {/^https?:\/\//i.test(receipt.qrPayload) && (
-                                  <a className="btn btn-sm btn-outline-primary" href={receipt.qrPayload} target="_blank" rel="noreferrer">Abrir</a>
-                                )}
-                                <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => void handleCopyQr(receipt.qrPayload)}>Copiar</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <ul className="list-group">
+                    {receipts.map((receipt) => (
+                      <li className="list-group-item" key={receipt.fiscalReceiptId}>
+                        <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                          <div>
+                            <h4 className="h6 mb-1">{receipt.receiptType}</h4>
+                            <span className="text-muted">{receipt.formattedReceiptNumber}</span>
+                          </div>
+                          <strong>{formatCurrency(receipt.totalAmount)}</strong>
+                        </div>
+                        <div className="row g-2 mb-3">
+                          <div className="col-12 col-md-6">
+                            <span className="fw-semibold">CAE: </span>{receipt.cae}
+                          </div>
+                          <div className="col-12 col-md-6">
+                            <span className="fw-semibold">Vencimiento del CAE: </span>{formatLocalDate(receipt.caeDueDate)}
+                          </div>
+                          <div className="col-12 col-md-6">
+                            <span className="fw-semibold">Fecha de emisión: </span>{formatLocalDate(receipt.issueDate)}
+                          </div>
+                          <div className="col-12 col-md-6">
+                            <span className="fw-semibold">Documento: </span>{receipt.docType} · {receipt.docNumber}
+                          </div>
+                          <div className="col-12">
+                            <span className="fw-semibold">Cliente: </span>{receipt.customerName}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="fw-semibold d-block mb-1">QR / Payload</span>
+                          <code className="small text-break d-block mb-2">{receipt.qrPayload}</code>
+                          <div className="d-flex flex-wrap gap-1">
+                            {/^https?:\/\//i.test(receipt.qrPayload) && (
+                              <a className="btn btn-sm btn-outline-primary" href={receipt.qrPayload} target="_blank" rel="noreferrer">Abrir</a>
+                            )}
+                            <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => void handleCopyQr(receipt.qrPayload)}>Copiar</button>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 ) : <p className="text-muted">Todavía no hay comprobantes fiscales emitidos.</p>}
 
                 {showRejectedInvoiceCase && (
