@@ -126,7 +126,7 @@ const AdminSaleDetailModal = ({
   const [returns, setReturns] = useState<SaleReturnResponse[]>([]);
   const [changeReason, setChangeReason] = useState('');
   const [paymentNotes, setPaymentNotes] = useState('');
-  const [internalNotes, setInternalNotes] = useState('');
+  const [newInternalNote, setNewInternalNote] = useState('');
   const [fiscalName, setFiscalName] = useState('');
   const [fiscalType, setFiscalType] = useState<TaxIdType | ''>('');
   const [fiscalNumber, setFiscalNumber] = useState('');
@@ -147,7 +147,6 @@ const AdminSaleDetailModal = ({
       setSale(saleDetail);
       setReceipts(fiscalReceipts);
       setReturns(saleReturns);
-      setInternalNotes(saleDetail.internalNotes ?? '');
       setFiscalName(saleDetail.customerName);
       setFiscalType(saleDetail.customerTaxIdType ?? '');
       setFiscalNumber(saleDetail.customerTaxIdNumber ?? '');
@@ -161,6 +160,7 @@ const AdminSaleDetailModal = ({
   }, [saleId]);
 
   useEffect(() => {
+    setNewInternalNote('');
     void loadData();
   }, [loadData]);
 
@@ -222,7 +222,6 @@ const AdminSaleDetailModal = ({
     try {
       const updatedSale = await action();
       setSale(updatedSale);
-      setInternalNotes(updatedSale.internalNotes ?? '');
       onUpdated?.();
       return true;
     } catch (requestError) {
@@ -287,7 +286,8 @@ const AdminSaleDetailModal = ({
   const handleSaveNotes = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!sale) return;
-    if (await runUpdate(() => updateAdminSaleNotes(sale.saleId, { internalNotes }))) {
+    if (await runUpdate(() => updateAdminSaleNotes(sale.saleId, { internalNotes: newInternalNote }))) {
+      setNewInternalNote('');
       setNotice('Las notas internas se guardaron correctamente.');
     }
   };
@@ -653,19 +653,26 @@ const AdminSaleDetailModal = ({
               <section className="my-orders__detail-section" aria-labelledby="admin-sale-notes-title">
                 <h3 className="my-orders__section-title" id="admin-sale-notes-title">5. Notas internas</h3>
                 <form onSubmit={(event) => void handleSaveNotes(event)}>
-                  <label className="form-label" htmlFor="admin-sale-internal-notes">Notas internas de la venta</label>
+                  <label className="form-label" htmlFor="admin-sale-internal-notes">Nueva nota interna</label>
                   <textarea
                     id="admin-sale-internal-notes"
                     className="form-control"
                     rows={4}
                     maxLength={2000}
-                    value={internalNotes}
-                    onChange={(event) => setInternalNotes(event.target.value)}
+                    value={newInternalNote}
+                    onChange={(event) => setNewInternalNote(event.target.value)}
+                    placeholder="Escribí una nueva nota interna..."
+                    required
                   />
                   <button type="submit" className="btn btn-primary mt-3" disabled={saving}>
-                    {saving ? 'Guardando…' : 'Guardar notas internas'}
+                    {saving ? 'Agregando…' : 'Agregar nota'}
                   </button>
                 </form>
+                <div className="admin-sale-notes__history" aria-label="Historial de notas internas">
+                  {sale?.internalNotes?.trim()
+                    ? sale.internalNotes
+                    : <span className="admin-sale-notes__empty">Sin notas internas registradas.</span>}
+                </div>
               </section>
             </>
           )}

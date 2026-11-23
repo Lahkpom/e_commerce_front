@@ -352,6 +352,23 @@
   font-size: 1.05rem;
 }
 
+.admin-layout .admin-sale-notes__history {
+  max-height: 16rem;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  margin-top: 1rem;
+  border: 1px solid $antique-white-color;
+  border-radius: 6px;
+  padding: 0.75rem;
+  background-color: $white-color;
+  color: $charcoal-grey-color;
+  white-space: pre-line;
+}
+
+.admin-layout .admin-sale-notes__empty {
+  color: $charcoal-grey-color;
+}
+
 .admin-layout .my-orders__icon-button {
   display: grid;
   width: 2.25rem;
