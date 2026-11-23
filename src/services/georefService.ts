@@ -41,5 +41,16 @@ export const getLocalidadesByProvincia = async (
     },
   );
 
-  return response.data.localidades ?? [];
+  const uniqueLocalidades = new Map<string, GeoRefOption>();
+  for (const localidad of response.data.localidades ?? []) {
+    const nombre = localidad.nombre.trim();
+    const key = nombre.toLowerCase();
+    if (!uniqueLocalidades.has(key)) {
+      uniqueLocalidades.set(key, { id: localidad.id, nombre });
+    }
+  }
+
+  return [...uniqueLocalidades.values()].sort((first, second) =>
+    first.nombre.localeCompare(second.nombre, 'es', { sensitivity: 'base' }),
+  );
 };

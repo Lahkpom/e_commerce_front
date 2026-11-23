@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { SaleResponse, SaleStatus, PaymentStatus } from '../../types/sale';
 import { cancelMyOrder, getMyOrderDetail } from '../../services/saleService';
+import BankTransferInstructionsCard from '../checkout/BankTransferInstructionsCard';
 import './MyOrders.scss';
 
 interface OrderDetailModalProps {
@@ -207,6 +208,14 @@ const OrderDetailModal = ({ saleId, onClose, onOrderUpdated }: OrderDetailModalP
                   <div className="my-orders__grand-total"><dt>Total</dt><dd>{formatCurrency(sale.saleTotal)}</dd></div>
                 </dl>
               </section>
+
+              {sale.paymentMethod === 'TRANSFERENCIA' && sale.paymentStatus === 'PENDIENTE' && (
+                <BankTransferInstructionsCard
+                  saleId={sale.saleId}
+                  saleTotal={sale.saleTotal}
+                  paymentStatus={sale.paymentStatus}
+                />
+              )}
 
               {canCancel && (
                 <div className="my-orders__modal-actions">

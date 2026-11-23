@@ -10,6 +10,7 @@ import { getShippingQuote } from '../../services/shippingService';
 import type { CheckoutItemRequest, CheckoutRequest, PaymentMethod, SaleResponse } from '../../types/sale';
 import type { ShippingQuoteResponse } from '../../types/shipping';
 import type { CartItemResponse } from '../../types/cart';
+import BankTransferInstructionsCard from './BankTransferInstructionsCard';
 import './CheckoutForm.scss';
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
@@ -209,6 +210,13 @@ const CheckoutForm = () => {
           <h1>¡Compra confirmada!</h1>
           <p>Guardá este código para consultar el estado de tu pedido:</p>
           <p className="checkout-confirmation__token">{completedSale.trackingToken}</p>
+          {completedSale.paymentMethod === 'TRANSFERENCIA' && completedSale.paymentStatus === 'PENDIENTE' && (
+            <BankTransferInstructionsCard
+              saleId={completedSale.saleId}
+              saleTotal={completedSale.saleTotal}
+              paymentStatus={completedSale.paymentStatus}
+            />
+          )}
           <dl>
             <div><dt>Número de orden</dt><dd>{completedSale.saleId}</dd></div>
             <div><dt>Entrega</dt><dd>{completedSale.shippingMethod.replace(/_/g, ' ')}</dd></div>

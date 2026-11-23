@@ -138,6 +138,49 @@ const AdminSaleDetailModal = ({
     void loadData();
   }, [loadData]);
 
+  const invoiceExists = hasInvoice(receipts);
+
+  useEffect(() => {
+    if (
+      sale?.paymentStatus !== 'APROBADO'
+      || sale.fiscalRejection !== false
+      || invoiceExists
+    ) {
+      return;
+    }
+
+    let attempts = 0;
+    let requestInFlight = false;
+    let active = true;
+    const intervalId = window.setInterval(() => {
+      attempts += 1;
+
+      if (!requestInFlight) {
+        requestInFlight = true;
+        void getFiscalReceiptsBySale(saleId)
+          .then((fiscalReceipts) => {
+            if (active && hasInvoice(fiscalReceipts)) {
+              window.clearInterval(intervalId);
+              setReceipts(fiscalReceipts);
+            }
+          })
+          .catch((requestError: unknown) => {
+            if (active) setError(getErrorMessage(requestError));
+          })
+          .finally(() => {
+            requestInFlight = false;
+          });
+      }
+
+      if (attempts >= 5) window.clearInterval(intervalId);
+    }, 1000);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
+  }, [invoiceExists, sale?.fiscalRejection, sale?.paymentStatus, saleId]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !saving) onClose();
@@ -251,7 +294,6 @@ const AdminSaleDetailModal = ({
     }
   };
 
-  const invoiceExists = hasInvoice(receipts);
   const showRejectedInvoiceCase = sale?.fiscalRejection === true && !invoiceExists;
   const showPendingInvoiceCase = sale?.paymentStatus === 'APROBADO'
     && sale.fiscalRejection === false
