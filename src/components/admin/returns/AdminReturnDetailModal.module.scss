@@ -1,0 +1,145 @@
+@use '../../../styles/global/variables' as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba($charcoal-grey-color, 0.62);
+}
+
+.modal {
+  display: flex;
+  width: min(100%, 900px);
+  max-height: 92vh;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid $antique-white-color;
+  border-radius: 16px;
+  background: $white-color;
+  color: $charcoal-grey-color;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+
+  h3 {
+    margin: 0 0 0.85rem;
+    color: $red-color;
+    font-size: 1.05rem;
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  border-bottom: 1px solid $antique-white-color;
+  padding: 1.25rem 1.5rem;
+
+  h2 {
+    margin: 0;
+    color: $red-color;
+    font-size: 1.3rem;
+  }
+}
+
+.eyebrow {
+  margin-bottom: 0.25rem;
+  color: $light-grey-color;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.close {
+  border: 0;
+  background: transparent;
+  color: $charcoal-grey-color;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.body {
+  display: grid;
+  gap: 1.5rem;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.customer {
+  border-left: 4px solid $bright-terracotta-color;
+  padding: 1rem;
+  background: rgba($cream-white-color, 0.55);
+
+  blockquote {
+    margin: 0;
+    border-left: 2px solid $antique-white-color;
+    padding-left: 0.9rem;
+    white-space: pre-wrap;
+  }
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.25rem 1rem;
+  margin-bottom: 1rem;
+
+  p {
+    margin: 0;
+  }
+}
+
+.notes {
+  white-space: pre-wrap;
+}
+
+.actionPanel {
+  display: grid;
+  gap: 0.9rem;
+  border: 1px solid $antique-white-color;
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba($cream-white-color, 0.4);
+
+  label {
+    display: grid;
+    gap: 0.4rem;
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-height: 2.5rem;
+    border: 1px solid $antique-white-color;
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+    background: $white-color;
+    color: $charcoal-grey-color;
+    font: inherit;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+}
+
+.itemDecision {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  border: 1px solid $antique-white-color;
+  border-radius: 8px;
+  padding: 0.9rem;
+
+  legend {
+    float: none;
+    width: auto;
+    margin: 0;
+    padding: 0 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+}

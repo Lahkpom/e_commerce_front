@@ -5,7 +5,9 @@ import {
   getMyOrders,
   retryMercadoPagoPayment,
 } from '../../services/saleService';
+import { getMyReturns } from '../../services/saleReturnService';
 import type { PaymentStatus, SaleResponse, SaleStatus, SaleSummaryResponse } from '../../types/sale';
+import type { ReturnReason, ReturnResolution, SaleReturnSummaryResponse } from '../../types/saleReturn';
 import OrderDetailModal from './OrderDetailModal';
 import ReturnRequestModal from './ReturnRequestModal';
 import './MyOrders.scss';
@@ -14,19 +16,23 @@ interface MyOrdersProps {
   mode: 'active' | 'history';
 }
 
-type HistoryStatus = 'TODOS' | 'ENTREGADO' | 'CANCELADO' | 'REEMBOLSADO' | 'CERRADO_CON_DEVOLUCION';
+type OrdersTab = 'active' | 'returns' | 'history';
+type HistoryStatus = 'TODOS' | 'ENTREGADO' | 'CANCELADO';
 
 const ACTIVE_STATUSES: SaleStatus[] = [
   'PENDIENTE',
   'PREPARACION',
   'ENVIADO',
   'AUDITORIA',
-  'RECLAMO_ABIERTO',
 ];
 
 const HISTORY_STATUSES: SaleStatus[] = [
   'ENTREGADO',
   'CANCELADO',
+];
+
+const RETURN_SALE_STATUSES: SaleStatus[] = [
+  'RECLAMO_ABIERTO',
   'REEMBOLSADO',
   'CERRADO_CON_DEVOLUCION',
 ];
@@ -35,9 +41,28 @@ const HISTORY_FILTERS: { value: HistoryStatus; label: string }[] = [
   { value: 'TODOS', label: 'Todos' },
   { value: 'ENTREGADO', label: 'Entregado' },
   { value: 'CANCELADO', label: 'Cancelado' },
-  { value: 'REEMBOLSADO', label: 'Reembolsado' },
-  { value: 'CERRADO_CON_DEVOLUCION', label: 'Cerrado con devolución' },
 ];
+
+const RETURN_STATUS_LABELS: Record<SaleReturnSummaryResponse['returnStatus'], string> = {
+  SOLICITADA: 'Solicitada',
+  EN_TRANSITO: 'En tránsito',
+  RECIBIDO_EN_CONTROL: 'Recibida en control',
+  APROBADA: 'Aprobada',
+  RECHAZADA: 'Rechazada',
+  CANCELADA: 'Cancelada',
+};
+
+const RETURN_REASON_LABELS: Record<ReturnReason, string> = {
+  ARREPENTIMIENTO_LEGAL: 'Arrepentimiento legal',
+  CAMBIO_TALLE: 'Cambio de talle',
+  DEFECTO_FABRICACION: 'Defecto de fabricación',
+};
+
+const RETURN_RESOLUTION_LABELS: Record<ReturnResolution, string> = {
+  REEMBOLSO_DINERO: 'Reembolso de dinero',
+  CAMBIO_PRODUCTO: 'Cambio de producto',
+  CREDITO_TIENDA: 'Crédito en tienda',
+};
 
 const SALE_STATUS_LABELS: Record<SaleStatus, string> = {
   PENDIENTE: 'Pendiente',
@@ -86,9 +111,11 @@ const canRequestReturn = (sale: SaleSummaryResponse): boolean => {
 
 const MyOrders = ({ mode }: MyOrdersProps) => {
   const [orders, setOrders] = useState<SaleSummaryResponse[]>([]);
+  const [returns, setReturns] = useState<SaleReturnSummaryResponse[]>([]);
   const [page, setPage] = useState(0);
   const [pageCount, setPageCount] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState<HistoryStatus>('TODOS');
+  const [tab, setTab] = useState<OrdersTab>(mode);
   const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
   const [returnSale, setReturnSale] = useState<SaleResponse | null>(null);
   const [loadingReturn, setLoadingReturn] = useState<string | null>(null);
@@ -97,26 +124,36 @@ const MyOrders = ({ mode }: MyOrdersProps) => {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const title = mode === 'active' ? 'Órdenes activas' : 'Historial';
+  const title = 'Mis compras';
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError(null);
-    const params = mode === 'active'
-      ? { statuses: ACTIVE_STATUSES, size: 50 }
-      : {
+    const load = tab === 'returns'
+      ? Promise.all([
+        getMyReturns(page, 15),
+        getMyOrders({ statuses: RETURN_SALE_STATUSES, page, size: 15 }),
+      ]).then(([returnPage, salePage]) => {
+        if (!active) return;
+        setReturns(returnPage.content);
+        setOrders(salePage.content);
+        setPageCount(Math.max(returnPage.page.totalPages, salePage.page.totalPages));
+      })
+      : getMyOrders(tab === 'active'
+        ? { statuses: ACTIVE_STATUSES, page, size: 15 }
+        : {
           statuses: selectedStatus === 'TODOS' ? HISTORY_STATUSES : [selectedStatus],
           page,
           size: 15,
-        };
-
-    getMyOrders(params)
-      .then((response) => {
+        }).then((response) => {
         if (!active) return;
         setOrders(response.content);
+        setReturns([]);
         setPageCount(response.page.totalPages);
-      })
+      });
+
+    load
       .catch((requestError: unknown) => {
         if (active) setError(getErrorMessage(requestError));
       })
@@ -127,11 +164,17 @@ const MyOrders = ({ mode }: MyOrdersProps) => {
     return () => {
       active = false;
     };
-  }, [mode, page, selectedStatus, refreshKey]);
+  }, [page, selectedStatus, tab, refreshKey]);
 
   const handleFilterChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedStatus(event.target.value as HistoryStatus);
     setPage(0);
+  };
+
+  const changeTab = (nextTab: OrdersTab) => {
+    setTab(nextTab);
+    setPage(0);
+    setSelectedStatus('TODOS');
   };
 
   const handleRetryPayment = async (saleId: string) => {
@@ -180,7 +223,22 @@ const MyOrders = ({ mode }: MyOrdersProps) => {
         </div>
       </header>
 
-      {mode === 'history' && (
+      <div className="nav nav-tabs my-orders__tabs mb-4" role="tablist" aria-label="Pestañas de mis compras">
+        <button type="button" className={`nav-link${tab === 'active' ? ' active' : ''}`}
+          role="tab" aria-selected={tab === 'active'} onClick={() => changeTab('active')}>
+          En Curso
+        </button>
+        <button type="button" className={`nav-link${tab === 'returns' ? ' active' : ''}`}
+          role="tab" aria-selected={tab === 'returns'} onClick={() => changeTab('returns')}>
+          Devoluciones y Reembolsos
+        </button>
+        <button type="button" className={`nav-link${tab === 'history' ? ' active' : ''}`}
+          role="tab" aria-selected={tab === 'history'} onClick={() => changeTab('history')}>
+          Historial
+        </button>
+      </div>
+
+      {tab === 'history' && (
         <div className="my-orders__filters">
           <label htmlFor="order-status-filter">Filtrar por estado</label>
           <select
@@ -204,22 +262,53 @@ const MyOrders = ({ mode }: MyOrdersProps) => {
         </div>
       )}
       {loading && <p className="my-orders__empty" role="status">Cargando órdenes…</p>}
-      {!loading && !error && orders.length === 0 && (
+      {!loading && !error && orders.length === 0 && returns.length === 0 && (
         <p className="my-orders__empty">
-          {mode === 'active'
+          {tab === 'active'
             ? 'No tenés órdenes activas en este momento.'
-            : 'No encontramos órdenes para este filtro.'}
+            : tab === 'returns'
+              ? 'Todavía no tenés devoluciones o reembolsos para mostrar.'
+              : 'No encontramos órdenes para este filtro.'}
         </p>
+      )}
+
+      {tab === 'returns' && !loading && returns.length > 0 && (
+        <div className="my-orders__list mb-4">
+          {returns.map((returnCase) => (
+            <article className="my-orders__card my-orders__return-card" key={returnCase.returnId}>
+              <div className="my-orders__card-top">
+                <div>
+                  <h3 className="my-orders__order-code">Devolución · Orden #{returnCase.saleId.slice(-8).toUpperCase()}</h3>
+                  <p className="my-orders__muted mb-0">{formatDate(returnCase.createdAt)}</p>
+                </div>
+                <span className="my-orders__badge my-orders__badge--sale">
+                  {RETURN_STATUS_LABELS[returnCase.returnStatus]}
+                </span>
+              </div>
+              <div className="my-orders__card-summary">
+                <span><strong>Motivo:</strong> {RETURN_REASON_LABELS[returnCase.returnReason]}</span>
+                <span><strong>Resolución:</strong> {RETURN_RESOLUTION_LABELS[returnCase.returnResolution]}</span>
+                {returnCase.refundAmount !== null && (
+                  <span><strong>Reembolso:</strong> {formatCurrency(returnCase.refundAmount)}</span>
+                )}
+              </div>
+              <button type="button" className="my-orders__button my-orders__button--secondary"
+                onClick={() => setSelectedSaleId(returnCase.saleId)}>
+                Ver detalle de la orden
+              </button>
+            </article>
+          ))}
+        </div>
       )}
 
       {!loading && orders.length > 0 && (
         <div className="my-orders__list">
           {orders.map((order) => {
-            const canRetryPayment = mode === 'active'
+            const canRetryPayment = tab === 'active'
               && order.paymentMethod === 'MERCADO_PAGO'
               && order.saleStatus === 'PENDIENTE'
               && (order.paymentStatus === 'PENDIENTE' || order.paymentStatus === 'RECHAZADO');
-            const canReturn = mode === 'history' && canRequestReturn(order);
+            const canReturn = tab === 'history' && canRequestReturn(order);
 
             return (
               <article className="my-orders__card" key={order.saleId}>
@@ -280,7 +369,7 @@ const MyOrders = ({ mode }: MyOrdersProps) => {
         </div>
       )}
 
-      {mode === 'history' && pageCount > 1 && (
+      {pageCount > 1 && (
         <nav className="my-orders__pagination" aria-label="Paginación del historial de órdenes">
           <button
             type="button"

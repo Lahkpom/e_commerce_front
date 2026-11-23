@@ -19,6 +19,7 @@ import AdminProducts from '../pages/admin/AdminProducts';
 import AdminVariants from '../pages/admin/AdminVariants';
 import AdminColors from '../pages/admin/AdminColors';
 import AdminSales from '../pages/admin/AdminSales';
+import AdminReturnsPage from '../pages/admin/AdminReturnsPage';
 import AdminUsers from '../pages/admin/AdminUsers';
 
 import Cart from '../pages/user/Cart';
@@ -119,6 +120,7 @@ const router = createBrowserRouter([
       { path: 'variantes', element: <AdminVariants /> },
       { path: 'colores', element: <AdminColors /> },
       { path: 'ventas', element: <AdminSales /> },
+      { path: 'devoluciones', element: <AdminReturnsPage /> },
       { path: 'usuarios', element: <AdminUsers /> },
     ],
   },

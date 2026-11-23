@@ -4,8 +4,7 @@ import './UserDashboardLayout.scss';
 
 const sections = [
   { label: 'Mi cuenta', path: '/mi_cuenta', end: true },
-  { label: 'Órdenes activas', path: '/mi_cuenta/ordenes_activas', end: false },
-  { label: 'Historial', path: '/mi_cuenta/historial', end: false },
+  { label: 'Mis compras', path: '/mi_cuenta/ordenes_activas', end: false },
 ];
 
 const UserDashboardLayout = () => {

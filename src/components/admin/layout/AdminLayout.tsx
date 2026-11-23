@@ -9,11 +9,11 @@ const navigation = [
   { label: 'Variantes', to: '/admin/variantes', end: false, icon: 'bi-tags' },
   { label: 'Colores', to: '/admin/colores', end: false, icon: 'bi-palette' },
   { label: 'Ventas', to: '/admin/ventas', end: false, icon: 'bi-receipt' },
+  { label: 'Devoluciones', to: '/admin/devoluciones', end: false, icon: 'bi-arrow-return-left' },
   { label: 'Usuarios', to: '/admin/usuarios', end: false, icon: 'bi-people' },
 ];
 
 const upcomingSections = [
-  { label: 'Devoluciones', icon: 'bi-arrow-return-left' },
   { label: 'Envíos', icon: 'bi-truck' },
 ];
 

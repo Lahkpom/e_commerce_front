@@ -12,7 +12,6 @@ const ACTIVE_STATUSES: SaleStatus[] = [
   'PENDIENTE',
   'PREPARACION',
   'ENVIADO',
-  'RECLAMO_ABIERTO',
 ];
 
 const HISTORY_STATUSES: SaleStatus[] = [

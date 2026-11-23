@@ -35,7 +35,7 @@ export interface SaleReturnItemResponse {
   productName: string;
   variantDesc: string | null;
   variantSku: string | null;
-  variantSize: string | null;
+  variantSize: NumericSize | null;
   colorName: string | null;
   imageUrl: string | null;
   unitPrice: number;
@@ -66,3 +66,41 @@ export interface SaleReturnResponse {
   closedAt: string | null;
   items: SaleReturnItemResponse[];
 }
+
+export interface SaleReturnSummaryResponse {
+  returnId: string;
+  saleId: string;
+  trackingToken: string;
+  customerName: string;
+  customerEmail: string;
+  returnReason: ReturnReason;
+  returnResolution: ReturnResolution;
+  returnStatus: ReturnStatus;
+  refundAmount: number | null;
+  createdAt: string;
+  closedAt: string | null;
+}
+
+export interface SaleReturnStatusUpdateRequest {
+  newStatus: ReturnStatus;
+  returnShippingGuide?: string;
+  statusNotes?: string;
+}
+
+export interface SaleReturnItemInspectionRequest {
+  returnItemId: number;
+  restockApproved: boolean;
+  rejectionReason?: string;
+}
+
+export interface SaleReturnInspectionRequest {
+  inspectionNotes: string;
+  inspectionEvidencePath?: string;
+  inspectedItems: SaleReturnItemInspectionRequest[];
+}
+
+export interface SaleReturnRefundRequest {
+  transactionReference?: string;
+  notes?: string;
+}
+import type { NumericSize } from './products';

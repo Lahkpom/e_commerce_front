@@ -44,8 +44,17 @@ const SalesTable = ({ sales, loading, onSelect }: SalesTableProps) => (
                   <td>{SHIPPING_METHOD_LABELS[sale.shippingMethod]}</td>
                   <td>{sale.paymentMethod.replace(/_/g, ' ')}</td>
                   <td><span className="badge text-bg-secondary">{PAYMENT_STATUS_LABELS[sale.paymentStatus]}</span></td>
-                  <td><span className="badge text-bg-primary">{SALE_STATUS_LABELS[sale.saleStatus]}</span>
-                    {sale.fiscalRejection && <span className="badge text-bg-danger ms-1">ARCA Rechazada</span>}</td>
+                  <td>
+                    <span className={`badge ${sale.saleStatus === 'REEMBOLSADO' || sale.saleStatus === 'CERRADO_CON_DEVOLUCION' ? 'text-bg-warning' : 'text-bg-primary'}`}>
+                      {SALE_STATUS_LABELS[sale.saleStatus]}
+                    </span>
+                    {(sale.saleStatus === 'REEMBOLSADO' || sale.saleStatus === 'CERRADO_CON_DEVOLUCION')
+                      ? <small className="d-block text-warning-emphasis fw-semibold mt-1">Cierre por devolución / reembolso</small>
+                      : (sale.saleStatus === 'ENTREGADO' || sale.saleStatus === 'CANCELADO')
+                        ? <small className="d-block text-muted mt-1">Cierre normal</small>
+                        : null}
+                    {sale.fiscalRejection && <span className="badge text-bg-danger ms-1">ARCA Rechazada</span>}
+                  </td>
                   <td>{formatCurrency(sale.saleTotal)}</td>
                   <td><button type="button" className="btn btn-sm btn-outline-primary"
                     title={`Ver detalle de venta ${sale.saleId.slice(-8).toUpperCase()}`}

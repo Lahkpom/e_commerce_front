@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { SaleResponse, SaleStatus, PaymentStatus } from '../../types/sale';
 import { cancelMyOrder, getMyOrderDetail } from '../../services/saleService';
+import { getReturnsByOrder } from '../../services/saleReturnService';
+import type { ReturnReason, ReturnResolution, SaleReturnResponse } from '../../types/saleReturn';
 import BankTransferInstructionsCard from '../checkout/BankTransferInstructionsCard';
 import './MyOrders.scss';
 
@@ -28,6 +30,27 @@ const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   RECHAZADO: 'Pago rechazado',
   REEMBOLSO_PENDIENTE: 'Reembolso pendiente',
   REEMBOLSADO: 'Reembolsado',
+};
+
+const RETURN_STATUS_LABELS: Record<SaleReturnResponse['returnStatus'], string> = {
+  SOLICITADA: 'Solicitada',
+  EN_TRANSITO: 'En tránsito',
+  RECIBIDO_EN_CONTROL: 'Recibida en control',
+  APROBADA: 'Aprobada',
+  RECHAZADA: 'Rechazada',
+  CANCELADA: 'Cancelada',
+};
+
+const RETURN_REASON_LABELS: Record<ReturnReason, string> = {
+  ARREPENTIMIENTO_LEGAL: 'Arrepentimiento legal',
+  CAMBIO_TALLE: 'Cambio de talle',
+  DEFECTO_FABRICACION: 'Defecto de fabricación',
+};
+
+const RETURN_RESOLUTION_LABELS: Record<ReturnResolution, string> = {
+  REEMBOLSO_DINERO: 'Reembolso de dinero',
+  CAMBIO_PRODUCTO: 'Cambio de producto',
+  CREDITO_TIENDA: 'Crédito en tienda',
 };
 
 const SHIPPING_METHOD_LABELS: Record<SaleResponse['shippingMethod'], string> = {
@@ -58,23 +81,36 @@ const getErrorMessage = (error: unknown): string =>
 
 const OrderDetailModal = ({ saleId, onClose, onOrderUpdated }: OrderDetailModalProps) => {
   const [sale, setSale] = useState<SaleResponse | null>(null);
+  const [returns, setReturns] = useState<SaleReturnResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingReturns, setLoadingReturns] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [returnsError, setReturnsError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError(null);
-    getMyOrderDetail(saleId)
-      .then((response) => {
-        if (active) setSale(response);
-      })
-      .catch((requestError: unknown) => {
-        if (active) setError(getErrorMessage(requestError));
+    Promise.allSettled([getMyOrderDetail(saleId), getReturnsByOrder(saleId)])
+      .then(([saleResult, returnResult]) => {
+        if (!active) return;
+        if (saleResult.status === 'fulfilled') {
+          setSale(saleResult.value);
+        } else {
+          setError(getErrorMessage(saleResult.reason));
+        }
+        if (returnResult.status === 'fulfilled') {
+          setReturns(returnResult.value);
+        } else {
+          setReturnsError(getErrorMessage(returnResult.reason));
+        }
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+          setLoadingReturns(false);
+        }
       });
 
     return () => {
@@ -197,6 +233,55 @@ const OrderDetailModal = ({ saleId, onClose, onOrderUpdated }: OrderDetailModalP
                     <span>Disponible próximamente. Te enviaremos las novedades por correo electrónico.</span>
                   </div>
                 )}
+              </section>
+
+              <section className="my-orders__detail-section" aria-labelledby="order-returns-title">
+                <h3 className="my-orders__section-title" id="order-returns-title">Devoluciones asociadas</h3>
+                {loadingReturns && <p role="status">Consultando solicitudes de devolución…</p>}
+                {returnsError && <div className="my-orders__alert my-orders__alert--error" role="alert">{returnsError}</div>}
+                {!loadingReturns && !returnsError && returns.length === 0 && (
+                  <p className="my-orders__muted mb-0">Esta orden no tiene solicitudes de devolución asociadas.</p>
+                )}
+                <div className="my-orders__list">
+                  {returns.map((returnCase) => (
+                    <article className="my-orders__card my-orders__return-card" key={returnCase.returnId}>
+                      <div className="my-orders__card-top">
+                        <div>
+                          <h4 className="h6 mb-1">Solicitud de devolución</h4>
+                          <p className="my-orders__muted mb-0">{formatDate(returnCase.createdAt)}</p>
+                        </div>
+                        <span className="my-orders__badge my-orders__badge--sale">
+                          {RETURN_STATUS_LABELS[returnCase.returnStatus]}
+                        </span>
+                      </div>
+                      <dl className="my-orders__return-details">
+                        <div><dt>Motivo</dt><dd>{RETURN_REASON_LABELS[returnCase.returnReason]}</dd></div>
+                        <div><dt>Resolución solicitada</dt><dd>{RETURN_RESOLUTION_LABELS[returnCase.returnResolution]}</dd></div>
+                        <div><dt>Comentario enviado</dt><dd>{returnCase.customerNotes || 'Sin comentario'}</dd></div>
+                        {returnCase.returnShippingGuide && (
+                          <div><dt>Guía de devolución</dt><dd>{returnCase.returnShippingGuide}</dd></div>
+                        )}
+                        {returnCase.inspectionNotes && (
+                          <div><dt>Notas de resolución del comercio</dt><dd>{returnCase.inspectionNotes}</dd></div>
+                        )}
+                        {returnCase.refundAmount !== null && (
+                          <div><dt>Monto reembolsado</dt><dd>{formatCurrency(returnCase.refundAmount)}</dd></div>
+                        )}
+                      </dl>
+                      <h5 className="h6 mt-3">Ítems reclamados</h5>
+                      <ul className="mb-0">
+                        {returnCase.items.map((item) => (
+                          <li key={item.returnItemId}>
+                            {item.quantity} × {item.productName}
+                            {[item.variantSize, item.colorName].filter(Boolean).length > 0
+                              ? ` · ${[item.variantSize, item.colorName].filter(Boolean).join(' · ')}`
+                              : ''}
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
               </section>
 
               <section className="my-orders__detail-section" aria-labelledby="order-total-title">

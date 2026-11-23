@@ -7,7 +7,9 @@ import {
   updateAdminSaleNotes,
   updateAdminSaleStatus,
 } from '../../../services/adminSaleService';
+import { getAdminReturnsBySale } from '../../../services/adminReturnService';
 import type { FiscalReceiptResponse } from '../../../types/fiscal';
+import type { ReturnReason, ReturnResolution, SaleReturnResponse } from '../../../types/saleReturn';
 import type {
   PaymentStatus,
   SaleResponse,
@@ -40,6 +42,27 @@ const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   RECHAZADO: 'Rechazado',
   REEMBOLSO_PENDIENTE: 'Reembolso pendiente',
   REEMBOLSADO: 'Reembolsado',
+};
+
+const RETURN_STATUS_LABELS: Record<SaleReturnResponse['returnStatus'], string> = {
+  SOLICITADA: 'Solicitada',
+  EN_TRANSITO: 'En tránsito',
+  RECIBIDO_EN_CONTROL: 'Recibida en control',
+  APROBADA: 'Aprobada',
+  RECHAZADA: 'Rechazada',
+  CANCELADA: 'Cancelada',
+};
+
+const RETURN_REASON_LABELS: Record<ReturnReason, string> = {
+  ARREPENTIMIENTO_LEGAL: 'Arrepentimiento legal',
+  CAMBIO_TALLE: 'Cambio de talle',
+  DEFECTO_FABRICACION: 'Defecto de fabricación',
+};
+
+const RETURN_RESOLUTION_LABELS: Record<ReturnResolution, string> = {
+  REEMBOLSO_DINERO: 'Reembolso de dinero',
+  CAMBIO_PRODUCTO: 'Cambio de producto',
+  CREDITO_TIENDA: 'Crédito en tienda',
 };
 
 const SHIPPING_METHOD_LABELS: Record<SaleResponse['shippingMethod'], string> = {
@@ -100,6 +123,7 @@ const AdminSaleDetailModal = ({
 }: AdminSaleDetailModalProps) => {
   const [sale, setSale] = useState<SaleResponse | null>(null);
   const [receipts, setReceipts] = useState<FiscalReceiptResponse[]>([]);
+  const [returns, setReturns] = useState<SaleReturnResponse[]>([]);
   const [changeReason, setChangeReason] = useState('');
   const [paymentNotes, setPaymentNotes] = useState('');
   const [internalNotes, setInternalNotes] = useState('');
@@ -115,12 +139,14 @@ const AdminSaleDetailModal = ({
     setLoading(true);
     setError('');
     try {
-      const [saleDetail, fiscalReceipts] = await Promise.all([
+      const [saleDetail, fiscalReceipts, saleReturns] = await Promise.all([
         getAdminSaleDetail(saleId),
         getFiscalReceiptsBySale(saleId),
+        getAdminReturnsBySale(saleId),
       ]);
       setSale(saleDetail);
       setReceipts(fiscalReceipts);
+      setReturns(saleReturns);
       setInternalNotes(saleDetail.internalNotes ?? '');
       setFiscalName(saleDetail.customerName);
       setFiscalType(saleDetail.customerTaxIdType ?? '');
@@ -381,6 +407,64 @@ const AdminSaleDetailModal = ({
                   </table>
                 </div>
               </section>
+
+              {returns.length > 0 && (
+                <section className="my-orders__detail-section" aria-labelledby="admin-sale-returns-title">
+                  <h3 className="my-orders__section-title" id="admin-sale-returns-title">Devoluciones asociadas</h3>
+                  <div className="d-grid gap-3">
+                    {returns.map((returnCase) => {
+                      const relatedReceipts = receipts.filter((receipt) =>
+                        receipt.returnId === returnCase.returnId
+                        || (receipt.receiptType === 'FACTURA_C' && receipt.returnId === null));
+                      return (
+                        <article className="card card-body border-start border-4 border-warning" key={returnCase.returnId}>
+                          <div className="d-flex flex-wrap justify-content-between gap-2">
+                            <h4 className="h6 mb-0">
+                              Devolución de la orden #{returnCase.saleId.slice(-8).toUpperCase()}
+                            </h4>
+                            <span className="badge text-bg-warning">{RETURN_STATUS_LABELS[returnCase.returnStatus]}</span>
+                          </div>
+                          <p className="mt-3 mb-1"><strong>Motivo:</strong> {RETURN_REASON_LABELS[returnCase.returnReason]}</p>
+                          <p className="mb-1"><strong>Resolución solicitada:</strong> {RETURN_RESOLUTION_LABELS[returnCase.returnResolution]}</p>
+                          <p className="mb-1"><strong>Comentario literal del cliente:</strong></p>
+                          <blockquote className="border-start ps-3 mb-3" style={{ whiteSpace: 'pre-wrap' }}>
+                            {returnCase.customerNotes || 'Sin comentario del cliente.'}
+                          </blockquote>
+                          <h5 className="h6">Ítems reclamados</h5>
+                          <ul>
+                            {returnCase.items.map((item) => (
+                              <li key={item.returnItemId}>
+                                {item.quantity} × {item.productName}
+                                {[item.variantSize, item.colorName].filter(Boolean).length > 0
+                                  ? ` · ${[item.variantSize, item.colorName].filter(Boolean).join(' · ')}`
+                                  : ''}
+                              </li>
+                            ))}
+                          </ul>
+                          {returnCase.refundAmount !== null && (
+                            <p><strong>Monto de reembolso:</strong> {formatCurrency(returnCase.refundAmount)}</p>
+                          )}
+                          {relatedReceipts.length > 0 && (
+                            <div>
+                              <h5 className="h6">Comprobantes fiscales asociados</h5>
+                              <ul className="mb-0">
+                                {relatedReceipts.map((receipt) => (
+                                  <li key={receipt.fiscalReceiptId}>
+                                    {receipt.receiptType === 'NOTA_CREDITO_C'
+                                      ? 'Nota de Crédito C'
+                                      : receipt.receiptType === 'FACTURA_C' ? 'Factura C original' : receipt.receiptType}
+                                    {' · '}{receipt.formattedReceiptNumber} · {formatCurrency(receipt.totalAmount)}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </article>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
 
               <section className="my-orders__detail-section" aria-labelledby="admin-sale-status-title">
                 <h3 className="my-orders__section-title" id="admin-sale-status-title">2. Estado logístico</h3>

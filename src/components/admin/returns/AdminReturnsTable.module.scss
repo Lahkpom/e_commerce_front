@@ -1,0 +1,18 @@
+@use '../../../styles/global/variables' as *;
+
+.tableCard {
+  overflow: hidden;
+  border: 1px solid $antique-white-color;
+  border-radius: 12px;
+}
+
+.status {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  background: rgba($bright-terracotta-color, 0.14);
+  color: $red-color;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
