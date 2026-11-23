@@ -1,6 +1,7 @@
 import { apiRequest } from './api';
 import type {
   CheckoutRequest,
+  PaymentStatus,
   SaleResponse,
   SaleStatus,
   SaleSummaryResponse,
@@ -46,4 +47,22 @@ export const cancelMyOrder = (saleId: string): Promise<SaleResponse> =>
 export const retryMercadoPagoPayment = (saleId: string): Promise<SaleResponse> =>
   apiRequest<SaleResponse>(`/sales/me/${encodeURIComponent(saleId)}/retry-mp`, {
     method: 'POST',
+  });
+
+export type MercadoPagoSimulationOutcome = 'approved' | 'pending' | 'rejected';
+
+export interface MercadoPagoSimulationResponse {
+  saleId: string;
+  redirectUrl: string;
+  saleStatus: SaleStatus;
+  paymentStatus: PaymentStatus;
+}
+
+export const simulateMercadoPagoWebhook = (
+  saleId: string,
+  outcome: MercadoPagoSimulationOutcome,
+): Promise<MercadoPagoSimulationResponse> =>
+  apiRequest<MercadoPagoSimulationResponse>('/dev/payments/mercadopago/simulate', {
+    method: 'POST',
+    body: { saleId, outcome },
   });

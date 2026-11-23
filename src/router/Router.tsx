@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import Layout from '../components/layout/Layout';
 
@@ -26,6 +26,10 @@ import Checkout from '../pages/Checkout';
 import MyAccountPage from '../pages/user/MyAccountPage';
 import MyOrders from '../components/userDashboard/MyOrders';
 import UserDashboardLayout from '../components/userDashboard/UserDashboardLayout';
+import CheckoutSuccessPage from '../pages/checkout/CheckoutSuccessPage';
+import CheckoutPendingPage from '../pages/checkout/CheckoutPendingPage';
+import CheckoutFailurePage from '../pages/checkout/CheckoutFailurePage';
+import MercadoPagoSandboxPage from '../pages/checkout/MercadoPagoSandboxPage';
 
 const router = createBrowserRouter([
   {
@@ -68,6 +72,22 @@ const router = createBrowserRouter([
       {
         path: 'checkout',
         element: <Checkout />,
+      },
+      {
+        path: 'checkout/success',
+        element: <CheckoutSuccessPage />,
+      },
+      {
+        path: 'checkout/pending',
+        element: <CheckoutPendingPage />,
+      },
+      {
+        path: 'checkout/failure',
+        element: <CheckoutFailurePage />,
+      },
+      {
+        path: 'checkout/mp-sandbox',
+        element: import.meta.env.DEV ? <MercadoPagoSandboxPage /> : <Navigate to="/" replace />,
       },
       {
         path: 'mi_cuenta',
