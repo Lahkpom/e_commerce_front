@@ -6,7 +6,6 @@ import {
   updateAdminUser,
   updateAdminUserStatus,
   type AdminUserSearchParams,
-  type SpringPage,
 } from '../../../services/adminUserService';
 import type {
   AdminUserUpdateRequest,
@@ -17,6 +16,7 @@ import type {
   UserSegment,
   WholesalerCreateRequest,
 } from '../../../types/auth';
+import type { PageResponse } from '../../../types/products';
 import useAuth from '../../../hooks/useAuth';
 import UsersFilters from './UsersFilters';
 import UsersTable from './UsersTable';
@@ -52,14 +52,14 @@ interface EditForm {
   taxIdNumber: string;
 }
 
-const emptyPage: SpringPage<UserResponse> = {
+const emptyPage: PageResponse<UserResponse> = {
   content: [],
-  totalPages: 0,
-  totalElements: 0,
-  number: 0,
-  size: PAGE_SIZE,
-  first: true,
-  last: true,
+  page: {
+    size: PAGE_SIZE,
+    number: 0,
+    totalElements: 0,
+    totalPages: 0,
+  },
 };
 
 const emptyWholesalerForm: WholesalerForm = {
@@ -344,8 +344,8 @@ const AdminUsersManager = () => {
         onStatusChange={(value) => { setStatusFilter(value); setPage(0); }} />
 
       <UsersTable users={pageData.content} segment={activeSegment} isAdmin={role === 'ADMIN'}
-        saving={saving} loading={loading} page={page} totalPages={pageData.totalPages}
-        totalElements={pageData.totalElements} onEdit={openEditModal}
+        saving={saving} loading={loading} page={page} totalPages={pageData.page.totalPages}
+        totalElements={pageData.page.totalElements} onEdit={openEditModal}
         onStatus={(user, deleting) => void handleStatus(user, deleting)}
         onPage={setPage} />
 

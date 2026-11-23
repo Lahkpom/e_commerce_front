@@ -1,4 +1,7 @@
 import type { ShippingMethod } from './shipping';
+import type { PageResponse } from './products';
+
+export type SpringPage<T> = PageResponse<T>;
 
 export type PaymentMethod = 'MERCADO_PAGO' | 'TRANSFERENCIA' | 'EFECTIVO';
 export type TaxIdType = 'DNI' | 'CUIT' | 'CUIL';
@@ -132,14 +135,4 @@ export interface SaleSummaryResponse {
   fiscalRejection: boolean;
   saleDeliveredAt: string | null;
   createdAt: string;
-}
-
-export interface SpringPage<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-  first: boolean;
-  last: boolean;
 }

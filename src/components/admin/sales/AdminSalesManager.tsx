@@ -44,12 +44,12 @@ const EMPTY_FILTERS: SalesFilterValues = {
 
 const EMPTY_PAGE: SpringPage<SaleSummaryResponse> = {
   content: [],
-  totalElements: 0,
-  totalPages: 0,
-  number: 0,
-  size: 20,
-  first: true,
-  last: true,
+  page: {
+    size: 20,
+    number: 0,
+    totalElements: 0,
+    totalPages: 0,
+  },
 };
 
 const toStartOfDayIso = (value: string): string | undefined => {
@@ -128,7 +128,7 @@ const AdminSalesManager = () => {
       ]);
       if (requestId.current !== currentRequestId) return;
       setPageData(result);
-      setAuditCount(auditResult.totalElements);
+      setAuditCount(auditResult.page.totalElements);
     } catch (requestError) {
       if (requestId.current === currentRequestId) setError(getErrorMessage(requestError));
     } finally {
@@ -213,7 +213,7 @@ const AdminSalesManager = () => {
 
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
         <span className="text-muted">
-          {pageData.totalElements} ventas · Página {pageData.totalPages === 0 ? 0 : page + 1} de {pageData.totalPages}
+          {pageData.page.totalElements} ventas · Página {pageData.page.totalPages === 0 ? 0 : page + 1} de {pageData.page.totalPages}
         </span>
         <div className="d-flex gap-2">
           <button
@@ -227,7 +227,7 @@ const AdminSalesManager = () => {
           <button
             type="button"
             className="btn btn-outline-secondary"
-            disabled={loading || pageData.totalPages === 0 || page + 1 >= pageData.totalPages}
+            disabled={loading || pageData.page.totalPages === 0 || page + 1 >= pageData.page.totalPages}
             onClick={() => setPage((current) => current + 1)}
           >
             Siguiente

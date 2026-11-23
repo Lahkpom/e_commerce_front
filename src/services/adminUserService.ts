@@ -8,16 +8,7 @@ import type {
   UserSegment,
   WholesalerCreateRequest,
 } from '../types/auth';
-
-export interface SpringPage<T> {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  number: number;
-  size: number;
-  first: boolean;
-  last: boolean;
-}
+import type { PageResponse } from '../types/products';
 
 export interface AdminUserSearchParams {
   segment: UserSegment;
@@ -30,7 +21,7 @@ export interface AdminUserSearchParams {
 
 export const searchAdminUsers = (
   params: AdminUserSearchParams,
-): Promise<SpringPage<UserResponse>> => {
+): Promise<PageResponse<UserResponse>> => {
   const query = new URLSearchParams({
     segment: params.segment,
     page: String(params.page ?? 0),
@@ -40,7 +31,7 @@ export const searchAdminUsers = (
   if (params.rowStatus) query.set('rowStatus', params.rowStatus);
   if (params.search?.trim()) query.set('search', params.search.trim());
 
-  return apiRequest<SpringPage<UserResponse>>(`/admin/users?${query.toString()}`);
+  return apiRequest<PageResponse<UserResponse>>(`/admin/users?${query.toString()}`);
 };
 
 export const createWholesalerAccount = (

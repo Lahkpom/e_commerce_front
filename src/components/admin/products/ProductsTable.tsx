@@ -45,10 +45,10 @@ const ProductsTable = ({ pageData, page, loading, saving, role, onPageChange, on
       </table>
     </div>
     <div className="d-flex justify-content-between align-items-center gap-2 p-3">
-      <span className="text-muted">Página {page + 1} de {Math.max(pageData.totalPages, 1)}</span>
+      <span className="text-muted">Página {page + 1} de {Math.max(pageData.page.totalPages, 1)}</span>
       <div className="d-flex gap-2">
         <button type="button" className="btn btn-sm btn-outline-secondary" disabled={page === 0 || loading} onClick={() => onPageChange(page - 1)}>Anterior</button>
-        <button type="button" className="btn btn-sm btn-outline-secondary" disabled={page + 1 >= pageData.totalPages || loading} onClick={() => onPageChange(page + 1)}>Siguiente</button>
+        <button type="button" className="btn btn-sm btn-outline-secondary" disabled={page + 1 >= pageData.page.totalPages || loading} onClick={() => onPageChange(page + 1)}>Siguiente</button>
       </div>
     </div>
   </div>

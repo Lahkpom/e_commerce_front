@@ -17,7 +17,10 @@ import VariantsTable from './VariantsTable';
 import VariantFormModal, { type VariantFormValues } from './VariantFormModal';
 import './AdminVariants.scss';
 
-const emptyPage: PageResponse<AdminVariantResponse> = { content: [], totalPages: 0 };
+const emptyPage: PageResponse<AdminVariantResponse> = {
+  content: [],
+  page: { size: 20, number: 0, totalElements: 0, totalPages: 0 },
+};
 const emptyForm: VariantFormValues = { productId: '', colorId: '', size: '', desc: '', sku: '', price: '', stock: '' };
 const emptyFilters: VariantFilterValues = { productId: '', colorId: '', size: '', rowStatus: '', search: '' };
 

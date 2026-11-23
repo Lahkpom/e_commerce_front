@@ -140,12 +140,12 @@ export const getProductsForHomepage = async (
         if (!response || !Array.isArray(response.content)) {
             throw new Error('La respuesta del catálogo no contiene una lista de productos válida.');
         }
-        if (!Number.isInteger(response.totalPages) || response.totalPages < 0) {
+        if (!Number.isInteger(response.page?.totalPages) || response.page.totalPages < 0) {
             throw new Error('La respuesta del catálogo contiene una paginación inválida.');
         }
 
         products.push(...response.content);
-        totalPages = response.totalPages;
+        totalPages = response.page.totalPages;
         page += 1;
     }
 

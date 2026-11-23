@@ -9,7 +9,10 @@ import './AdminProducts.scss';
 
 const PAGE_SIZE = 20;
 const emptyForm: AdminProductRequest = { targetGender: 'UNISEX', name: '', shortDesc: '', longDesc: '' };
-const emptyPage: PageResponse<AdminProductResponse> = { content: [], totalPages: 0 };
+const emptyPage: PageResponse<AdminProductResponse> = {
+  content: [],
+  page: { size: PAGE_SIZE, number: 0, totalElements: 0, totalPages: 0 },
+};
 
 const AdminProductsManager = () => {
   const { role } = useAuth();

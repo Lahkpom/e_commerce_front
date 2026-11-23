@@ -115,7 +115,7 @@ const MyOrders = ({ mode }: MyOrdersProps) => {
       .then((response) => {
         if (!active) return;
         setOrders(response.content);
-        setPageCount(response.totalPages);
+        setPageCount(response.page.totalPages);
       })
       .catch((requestError: unknown) => {
         if (active) setError(getErrorMessage(requestError));
