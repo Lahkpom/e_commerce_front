@@ -1,6 +1,16 @@
-# Calwill & Fiorella — Frontend Web (E-Commerce & Panel Administrativo)
+# E-Commerce — Frontend Web (E-Commerce & Panel Administrativo)
 
-Aplicación web frontend del e-commerce **Calwill & Fiorella**, desarrollada con **React 19**, **TypeScript** y **Vite**[cite: 5]. Incluye la tienda pública (catálogo, detalle de variantes, carrito persistente, checkout con cálculo de envíos y pasarela de pago), el panel de autogestión de clientes y el panel administrativo integral para gestión de catálogo, ventas, facturación electrónica ARCA y usuarios[cite: 5].
+Aplicación web frontend de e-commerce, desarrollada con **React 19**, **TypeScript** y **Vite**[cite: 5]. Incluye la tienda pública (catálogo, detalle de variantes, carrito persistente, checkout con cálculo de envíos y pasarela de pago), el panel de autogestión de clientes y el panel administrativo integral para gestión de catálogo, ventas, facturación electrónica ARCA y usuarios[cite: 5].
+
+---
+
+## Repositorios relacionados
+
+| Proyecto | Repositorio |
+|---|---|
+| Backend Spring Boot | [e_commerce_back](https://github.com/Lahkpom/e_commerce_back) |
+| Frontend React + TypeScript + Vite | [e_commerce_front](https://github.com/Lahkpom/e_commerce_front) |
+| Base de datos PostgreSQL / Supabase DDL | [e_commerce_db](https://github.com/Lahkpom/e_commerce_db) |
 
 ---
 
@@ -26,7 +36,7 @@ Aplicación web frontend del e-commerce **Calwill & Fiorella**, desarrollada con
 * **Node.js** (versión LTS recomendada, `>= 20.x`) instalado en **Linux**, **Windows** o **macOS**.
 * **Gestor de paquetes:** **Yarn** (recomendado, el proyecto incluye `yarn.lock`) o **npm** (incluido con Node.js).
   * *Nota para Windows:* si `yarn` no está habilitado tras instalar Node.js, podés activarlo ejecutando `corepack enable` en una terminal (PowerShell, CMD o Git Bash) o utilizar directamente `npm`.
-* **Backend en ejecución:** para consumir datos reales (productos, autenticación JWT, carrito remoto, checkout y administración), debe estar levantada la API REST del backend (`proyecto_techlab_springboot`) en `http://localhost:8080/api` (o en la URL configurada en `.env.local`)[cite: 5].
+* **Backend en ejecución:** para consumir datos reales (productos, autenticación JWT, carrito remoto, checkout y administración), debe estar levantada la API REST del backend (`e_commerce_back`) en `http://localhost:8080/api` (o en la URL configurada en `.env.local`)[cite: 5].
 
 ---
 
@@ -42,8 +52,8 @@ Aplicación web frontend del e-commerce **Calwill & Fiorella**, desarrollada con
 **En Linux / macOS / Windows (PowerShell, CMD o Git Bash):**
 
 ```bash
-git clone https://github.com/Lahkpom/calwill_y_fiorella_react.git
-cd calwill_y_fiorella_react
+git clone https://github.com/Lahkpom/e_commerce_front.git
+cd e_commerce_front
 ```
 
 Instalá todas las dependencias del proyecto ejecutando uno de los siguientes comandos:
@@ -187,7 +197,7 @@ El sistema contempla cuatro roles de usuario autenticado (`CUSTOMER`, `WHOLESALE
 ### Funcionalidades por Perfil de Usuario
 
 #### 1. Visitante Invitado y Cliente (`CUSTOMER` / `WHOLESALER`)
-* **Exploración y Carrito:** Puede navegar el catálogo, seleccionar variantes por talle y color y armar su carrito sin necesidad de iniciar sesión[cite: 5]. Al iniciar sesión, el carrito local no se sincroniza con el servidor, muestra el persistido (Al logout vuelve a mostar el local)[cite: 5].
+* **Exploración y Carrito:** Puede navegar el catálogo, seleccionar variantes por talle y color y armar su carrito sin necesidad de iniciar sesión[cite: 5]. Al iniciar sesión, el carrito local no se sincroniza con el servidor, muestra el persistido (Al logout vuelve a mostrar el local)[cite: 5].
 * **Checkout:** Permite completar compras como invitado o usuario autenticado, eligiendo **retiro sin cargo en Estación Llavallol** o **envío a domicilio** (con selección de provincia/localidad vía API Georef y cotización en tiempo real) y pagando mediante **Mercado Pago**, **transferencia bancaria** o **efectivo** (habilitado según modalidad de envío)[cite: 5].
 * **Autenticación y Seguridad:** Inicio de sesión con soporte para flujo obligatorio de actualización de contraseña inicial o vencida[cite: 5].
 * **Autogestión (`/mi_cuenta`):**
